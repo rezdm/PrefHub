@@ -3,6 +3,7 @@ package com.prefhub.server;
 import com.prefhub.server.api.HttpServer;
 import com.prefhub.server.auth.AuthService;
 import com.prefhub.server.game.GameService;
+import com.prefhub.server.game.RulesLoader;
 import com.prefhub.server.persistence.GamePersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,8 @@ public class ServerMain {
 
             final var persistence = new GamePersistence(storageDir);
             final var authService = new AuthService();
-            final var gameService = new GameService(persistence);
+            final var rulesLoader = new RulesLoader(storageDir);
+            final var gameService = new GameService(persistence, rulesLoader);
 
             final var server = new HttpServer(port, authService, gameService);
             server.start();

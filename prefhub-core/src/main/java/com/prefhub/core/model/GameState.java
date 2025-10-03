@@ -19,6 +19,7 @@ public class GameState implements java.io.Serializable {
     private GamePhase phase;
     private int dealerIndex;
     private int currentPlayerIndex;
+    private GameRules rules; // правила игры
 
     // Торговля
     private final Map<Player, Contract> bids;
@@ -33,6 +34,10 @@ public class GameState implements java.io.Serializable {
     private int roundNumber;
 
     public GameState(String gameId) {
+        this(gameId, null);
+    }
+
+    public GameState(String gameId, GameRules rules) {
         this.gameId = gameId;
         this.players = new ArrayList<>(3);
         this.widow = new ArrayList<>(2);
@@ -43,6 +48,7 @@ public class GameState implements java.io.Serializable {
         this.dealerIndex = 0;
         this.currentPlayerIndex = 0;
         this.roundNumber = 1;
+        this.rules = rules != null ? rules : new GameRules(); // default rules if null
     }
 
     public String getGameId() {
@@ -174,6 +180,14 @@ public class GameState implements java.io.Serializable {
 
     public int getRoundNumber() {
         return roundNumber;
+    }
+
+    public GameRules getRules() {
+        return rules;
+    }
+
+    public void setRules(GameRules rules) {
+        this.rules = rules;
     }
 
     public void nextRound() {

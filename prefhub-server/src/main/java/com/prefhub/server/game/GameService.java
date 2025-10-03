@@ -9,19 +9,37 @@ import java.util.concurrent.ConcurrentHashMap;
 public class GameService {
     private final Map<String, GameState> activeGames = new ConcurrentHashMap<>();
     private final GamePersistence persistence;
+    private final RulesLoader rulesLoader;
 
-    public GameService(final GamePersistence persistence) {
+    public GameService(final GamePersistence persistence, final RulesLoader rulesLoader) {
         this.persistence = persistence;
+        this.rulesLoader = rulesLoader;
     }
 
     public GameState createGame(final String gameId) {
+        return createGame(gameId, null);
+    }
+
+    public GameState createGame(final String gameId, final String ruleId) {
         if (activeGames.containsKey(gameId)) {
             throw new IllegalArgumentException("Game already exists: " + gameId);
         }
-        final var gameState = new GameState(gameId);
+
+        final GameRules rules;
+        if (ruleId != null && !ruleId.isEmpty()) {
+            rules = rulesLoader.getRules(ruleId);
+        } else {
+            rules = rulesLoader.getDefaultRules();
+        }
+
+        final var gameState = new GameState(gameId, rules);
         activeGames.put(gameId, gameState);
         persistence.saveGame(gameState);
         return gameState;
+    }
+
+    public Map<String, String> getAvailableRules() {
+        return rulesLoader.getAvailableRulesList();
     }
 
     public GameState joinGame(final String gameId, final String username) {
