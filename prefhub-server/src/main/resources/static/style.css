@@ -262,3 +262,87 @@ body {
     font-size: 12px;
     color: #666;
 }
+
+/* Bidding buttons */
+#bid-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.bid-button {
+    padding: 10px 20px;
+    border: 2px solid #2a5298;
+    background: white;
+    color: #2a5298;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.bid-button:hover {
+    background: #2a5298;
+    color: white;
+}
+
+.bid-button.pass-button {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+.bid-button.pass-button:hover {
+    background: #dc3545;
+    color: white;
+}
+
+/* Card buttons */
+.card-button {
+    padding: 15px 20px;
+    margin: 5px;
+    border: 2px solid #2a5298;
+    background: white;
+    color: #2a5298;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    min-width: 60px;
+    transition: all 0.3s;
+}
+
+.card-button:hover {
+    background: #e3f2fd;
+    transform: translateY(-2px);
+}
+
+.card-button.selected {
+    background: #2a5298;
+    color: white;
+}
+
+/* Widow exchange */
+.widow-cards, .exchange-hand {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin: 10px 0;
+}
+
+.card-display {
+    padding: 10px 15px;
+    background: #e3f2fd;
+    border: 2px solid #2a5298;
+    border-radius: 5px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #2a5298;
+}
+
+#hand-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}

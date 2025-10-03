@@ -242,7 +242,7 @@ class PrefHubClient {
         }
     }
 
-    displayGameState(state) {
+    async displayGameState(state) {
         $('#game-state').show();
 
         // Store rules
@@ -278,7 +278,8 @@ class PrefHubClient {
             html += `<p><strong>Следующее действие:</strong> ${state.nextActionDescription}</p>`;
         }
 
-        if (state.yourTurn) {
+        const yourTurn = state.yourTurn || state.isYourTurn;
+        if (yourTurn) {
             html += `<p class="your-turn">⚡ ВАШ ХОД! ⚡</p>`;
         }
 
@@ -351,26 +352,106 @@ class PrefHubClient {
         $('#game-info').html(html);
 
         // Update action controls
-        this.updateActionControls(state);
+        await this.updateActionControls(state);
     }
 
-    updateActionControls(state) {
+    async updateActionControls(state) {
         $('#bid-controls').hide();
         $('#play-controls').hide();
         $('#next-round-controls').hide();
+        $('#widow-exchange-controls').hide();
 
-        if (!state.yourTurn) {
+        const yourTurn = state.yourTurn || state.isYourTurn;
+        if (!yourTurn) {
             return;
         }
 
         if (state.phase === 'BIDDING') {
+            await this.renderBiddingControls();
             $('#bid-controls').show();
+        } else if (state.phase === 'WIDOW_EXCHANGE') {
+            this.renderWidowExchange(state.hand || [], state.widow || []);
+            $('#widow-exchange-controls').show();
         } else if (state.phase === 'PLAYING') {
-            $('#play-controls').show();
             this.renderHandCards(state.hand || []);
+            $('#play-controls').show();
         } else if (state.phase === 'ROUND_ENDED') {
             $('#next-round-controls').show();
         }
+    }
+
+    async renderBiddingControls() {
+        try {
+            const availableBids = await this.apiCall(`/api/games/available-bids?gameId=${this.currentGameId}`, 'GET');
+            const container = $('#bid-buttons');
+            container.empty();
+
+            if (availableBids && availableBids.length > 0) {
+                availableBids.forEach(bid => {
+                    const button = $('<button>')
+                        .addClass('bid-button')
+                        .text(bid.displayName || bid)
+                        .click(() => this.placeBid(bid.contract || bid));
+                    container.append(button);
+                });
+            }
+
+            // Always show PASS button
+            const passButton = $('<button>')
+                .addClass('bid-button pass-button')
+                .text('ПАС')
+                .click(() => this.placeBid('PASS'));
+            container.append(passButton);
+        } catch (error) {
+            this.log(`Ошибка загрузки заявок: ${error.message}`, 'error');
+        }
+    }
+
+    renderWidowExchange(hand, widow) {
+        const container = $('#widow-exchange');
+        container.empty();
+
+        const selectedCards = [];
+
+        container.append('<h3>Прикуп:</h3>');
+        const widowDiv = $('<div>').addClass('widow-cards');
+        widow.forEach(card => {
+            const cardSpan = $('<span>')
+                .addClass('card-display')
+                .text(this.formatCard(card));
+            widowDiv.append(cardSpan);
+        });
+        container.append(widowDiv);
+
+        container.append('<h3>Выберите 2 карты для сброса:</h3>');
+        const handDiv = $('<div>').addClass('exchange-hand');
+
+        const allCards = [...hand, ...widow];
+        allCards.forEach(card => {
+            const button = $('<button>')
+                .addClass('card-button')
+                .text(this.formatCard(card))
+                .click(function() {
+                    const cardStr = `${card.rank}_${card.suit}`;
+                    const index = selectedCards.indexOf(cardStr);
+                    if (index > -1) {
+                        selectedCards.splice(index, 1);
+                        $(this).removeClass('selected');
+                    } else if (selectedCards.length < 2) {
+                        selectedCards.push(cardStr);
+                        $(this).addClass('selected');
+                    }
+                    exchangeButton.prop('disabled', selectedCards.length !== 2);
+                });
+            handDiv.append(button);
+        });
+        container.append(handDiv);
+
+        const exchangeButton = $('<button>')
+            .text('Сбросить')
+            .prop('disabled', true)
+            .click(() => this.exchangeWidow(selectedCards));
+        container.append(exchangeButton);
     }
 
     renderHandCards(hand) {
@@ -410,9 +491,7 @@ class PrefHubClient {
         return symbols[suit] || suit;
     }
 
-    async placeBid() {
-        const contract = $('#bid-select').val();
-
+    async placeBid(contract) {
         try {
             await this.apiCall('/api/games/bid', 'POST', {
                 gameId: this.currentGameId,
@@ -422,6 +501,19 @@ class PrefHubClient {
             await this.getGameState();
         } catch (error) {
             this.log(`Ошибка заявки: ${error.message}`, 'error');
+        }
+    }
+
+    async exchangeWidow(cards) {
+        try {
+            await this.apiCall('/api/games/exchange', 'POST', {
+                gameId: this.currentGameId,
+                cards: cards
+            });
+            this.log(`Сброс выполнен`, 'success');
+            await this.getGameState();
+        } catch (error) {
+            this.log(`Ошибка сброса: ${error.message}`, 'error');
         }
     }
 

@@ -72,21 +72,12 @@
                         <!-- Bidding -->
                         <div id="bid-controls" style="display: none;">
                             <h3>Сделать заявку</h3>
-                            <select id="bid-select" class="form-control">
-                                <option value="PASS">Пас</option>
-                                <option value="SIX_SPADES">6 Пик</option>
-                                <option value="SIX_CLUBS">6 Треф</option>
-                                <option value="SIX_DIAMONDS">6 Бубен</option>
-                                <option value="SIX_HEARTS">6 Червей</option>
-                                <option value="SIX_NO_TRUMP">6 Без козыря</option>
-                                <option value="SEVEN_SPADES">7 Пик</option>
-                                <option value="SEVEN_CLUBS">7 Треф</option>
-                                <option value="SEVEN_DIAMONDS">7 Бубен</option>
-                                <option value="SEVEN_HEARTS">7 Червей</option>
-                                <option value="SEVEN_NO_TRUMP">7 Без козыря</option>
-                                <option value="MISER">Мизер</option>
-                            </select>
-                            <button onclick="client.placeBid()" class="btn btn-primary">Сделать заявку</button>
+                            <div id="bid-buttons"></div>
+                        </div>
+
+                        <!-- Widow Exchange -->
+                        <div id="widow-exchange-controls" style="display: none;">
+                            <div id="widow-exchange"></div>
                         </div>
 
                         <!-- Card Playing -->
