@@ -21,10 +21,11 @@
     <properties>
         <maven.compiler.release>25</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jackson.version>2.18.2</jackson.version>
-        <junit.version>5.11.3</junit.version>
-        <slf4j.version>2.0.16</slf4j.version>
-        <logback.version>1.5.15</logback.version>
+        <jackson.version.core>2.20.0</jackson.version.core>
+        <jackson.version.annotations>2.20</jackson.version.annotations>
+        <junit.version>6.0.0</junit.version>
+        <slf4j.version>2.0.17</slf4j.version>
+        <logback.version>1.5.19</logback.version>
     </properties>
 
     <dependencyManagement>
@@ -33,12 +34,12 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
+                <version>${jackson.version.core}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
-                <version>${jackson.version}</version>
+                <version>${jackson.version.annotations}</version>
             </dependency>
 
             <!-- JUnit for testing -->
@@ -71,7 +72,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.13.0</version>
+                    <version>3.14.1</version>
                 </plugin>
             </plugins>
         </pluginManagement>
