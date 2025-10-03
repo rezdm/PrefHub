@@ -59,7 +59,7 @@ public class GameService {
         }
 
         final var player = findPlayer(gameState, username);
-        final var currentPlayer = gameState.getPlayers().size() > 0 ? gameState.getCurrentPlayer() : null;
+        final var currentPlayer = !gameState.getPlayers().isEmpty() ? gameState.getCurrentPlayer() : null;
         final var isYourTurn = currentPlayer != null && currentPlayer.equals(player);
 
         // Determine allowed actions and next step description
@@ -76,7 +76,7 @@ public class GameService {
                     allowedActions.add("BID");
                     nextActionDescription = "Ваш ход! Сделайте заявку (или пас)";
                 } else {
-                    nextActionDescription = "Ждем заявку от " + currentPlayer.getUsername();
+                    nextActionDescription = "Ждем заявку от " + (currentPlayer != null ? currentPlayer.getUsername() : null);
                 }
                 break;
 
@@ -94,7 +94,7 @@ public class GameService {
                     allowedActions.add("PLAY_CARD");
                     nextActionDescription = "Ваш ход! Сыграйте карту";
                 } else {
-                    nextActionDescription = "Ждем хода от " + currentPlayer.getUsername();
+                    nextActionDescription = "Ждем хода от " + (currentPlayer != null ? currentPlayer.getUsername() : null);
                 }
                 break;
 

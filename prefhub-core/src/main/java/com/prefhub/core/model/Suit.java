@@ -1,15 +1,17 @@
 package com.prefhub.core.model;
 
 public enum Suit {
-    SPADES("♠", "Пики"),
-    CLUBS("♣", "Трефы"),
-    DIAMONDS("♦", "Бубны"),
-    HEARTS("♥", "Червы");
+    SPADES(0, "♠", "Пики"),
+    CLUBS(1, "♣", "Трефы"),
+    DIAMONDS(2, "♦", "Бубны"),
+    HEARTS(3, "♥", "Червы");
 
+    private final int sortOrder;
     private final String symbol;
     private final String russianName;
 
-    Suit(String symbol, String russianName) {
+    Suit(int sortOrder, String symbol, String russianName) {
+        this.sortOrder = sortOrder;
         this.symbol = symbol;
         this.russianName = russianName;
     }

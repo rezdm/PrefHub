@@ -17,7 +17,7 @@ public class ServerMain {
             // Prefer IPv4 stack
             System.setProperty("java.net.preferIPv4Stack", "true");
 
-            final var port = args.length > 0 ? Integer.parseInt(args[0]) : 8080;
+            final var port = args.length > 0 ? Integer.parseInt(args[0]) : 8090;
             final var storageDir = args.length > 1 ? args[1] : "./game-data";
 
             logger.info("Starting PrefHub server...");

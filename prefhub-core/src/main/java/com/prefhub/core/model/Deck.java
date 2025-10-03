@@ -1,10 +1,12 @@
 package com.prefhub.core.model;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class Deck implements java.io.Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
     private final List<Card> cards;
 
@@ -27,7 +29,7 @@ public class Deck implements java.io.Serializable {
         }
         final var dealt = new ArrayList<Card>();
         for (int i = 0; i < count; i++) {
-            dealt.add(cards.remove(0));
+            dealt.add(cards.removeFirst());
         }
         return dealt;
     }

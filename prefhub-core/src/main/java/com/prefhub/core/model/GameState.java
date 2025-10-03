@@ -3,6 +3,7 @@ package com.prefhub.core.model;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.io.Serial;
 import java.util.*;
 
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE,
@@ -10,6 +11,7 @@ import java.util.*;
                 fieldVisibility = JsonAutoDetect.Visibility.ANY,
                 setterVisibility = JsonAutoDetect.Visibility.ANY)
 public class GameState implements java.io.Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
     private final String gameId;
     private final List<Player> players;

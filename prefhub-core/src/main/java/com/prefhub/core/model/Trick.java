@@ -1,9 +1,11 @@
 package com.prefhub.core.model;
 
+import java.io.Serial;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Trick implements java.io.Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
     private final Map<Player, Card> cardsPlayed;
     private Player leadPlayer;

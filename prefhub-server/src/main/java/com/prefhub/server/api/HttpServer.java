@@ -9,15 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class HttpServer {
     private static final Logger logger = LoggerFactory.getLogger(HttpServer.class);
@@ -108,7 +103,7 @@ public class HttpServer {
     }
 
     // Handlers
-    private class StaticFileHandler implements HttpHandler {
+    private static class StaticFileHandler implements HttpHandler {
         @Override
         public void handle(final HttpExchange exchange) throws IOException {
             var path = exchange.getRequestURI().getPath();
