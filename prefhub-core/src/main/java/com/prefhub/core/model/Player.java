@@ -87,7 +87,7 @@ public class Player implements java.io.Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Player player = (Player) o;
+        final var player = (Player) o;
         return Objects.equals(username, player.username);
     }
 

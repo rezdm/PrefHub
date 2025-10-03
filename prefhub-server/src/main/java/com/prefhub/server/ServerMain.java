@@ -17,18 +17,18 @@ public class ServerMain {
             // Prefer IPv4 stack
             System.setProperty("java.net.preferIPv4Stack", "true");
 
-            int port = args.length > 0 ? Integer.parseInt(args[0]) : 8080;
-            String storageDir = args.length > 1 ? args[1] : "./game-data";
+            final var port = args.length > 0 ? Integer.parseInt(args[0]) : 8080;
+            final var storageDir = args.length > 1 ? args[1] : "./game-data";
 
             logger.info("Starting PrefHub server...");
             logger.info("Port: {}", port);
             logger.info("Storage directory: {}", storageDir);
 
-            GamePersistence persistence = new GamePersistence(storageDir);
-            AuthService authService = new AuthService();
-            GameService gameService = new GameService(persistence);
+            final var persistence = new GamePersistence(storageDir);
+            final var authService = new AuthService();
+            final var gameService = new GameService(persistence);
 
-            HttpServer server = new HttpServer(port, authService, gameService);
+            final var server = new HttpServer(port, authService, gameService);
             server.start();
 
             logger.info("Server is running. Press Ctrl+C to stop.");

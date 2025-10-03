@@ -25,7 +25,7 @@ public class Deck implements java.io.Serializable {
         if (count > cards.size()) {
             throw new IllegalStateException("Not enough cards in deck");
         }
-        List<Card> dealt = new ArrayList<>();
+        final var dealt = new ArrayList<Card>();
         for (int i = 0; i < count; i++) {
             dealt.add(cards.remove(0));
         }

@@ -11,7 +11,7 @@ public class ConsoleUI {
     private final Scanner scanner;
     private String currentGameId;
 
-    public ConsoleUI(String serverUrl) {
+    public ConsoleUI(final String serverUrl) {
         this.apiClient = new ApiClient(serverUrl);
         this.scanner = new Scanner(System.in);
     }
@@ -37,7 +37,7 @@ public class ConsoleUI {
         System.out.println("3. Выход");
         System.out.print("Выберите действие: ");
 
-        String choice = scanner.nextLine().trim();
+        final var choice = scanner.nextLine().trim();
 
         switch (choice) {
             case "1" -> login();
@@ -63,7 +63,7 @@ public class ConsoleUI {
         System.out.println("9. Выйти из аккаунта");
         System.out.print("Выберите действие: ");
 
-        String choice = scanner.nextLine().trim();
+        final var choice = scanner.nextLine().trim();
 
         switch (choice) {
             case "1" -> createGame();
@@ -81,12 +81,12 @@ public class ConsoleUI {
 
     private void register() {
         System.out.print("Имя пользователя: ");
-        String username = scanner.nextLine().trim();
+        final var username = scanner.nextLine().trim();
         System.out.print("Пароль: ");
-        String password = scanner.nextLine().trim();
+        final var password = scanner.nextLine().trim();
 
         try {
-            Map<String, Object> response = apiClient.register(username, password);
+            final var response = apiClient.register(username, password);
             System.out.println("✓ Регистрация успешна: " + response.get("message"));
         } catch (Exception e) {
             System.out.println("✗ Ошибка регистрации: " + e.getMessage());
@@ -95,12 +95,12 @@ public class ConsoleUI {
 
     private void login() {
         System.out.print("Имя пользователя: ");
-        String username = scanner.nextLine().trim();
+        final var username = scanner.nextLine().trim();
         System.out.print("Пароль: ");
-        String password = scanner.nextLine().trim();
+        final var password = scanner.nextLine().trim();
 
         try {
-            Map<String, Object> response = apiClient.login(username, password);
+            final var response = apiClient.login(username, password);
             System.out.println("✓ Вход выполнен успешно!");
             System.out.println("Токен: " + response.get("token"));
         } catch (Exception e) {
@@ -119,10 +119,10 @@ public class ConsoleUI {
 
     private void createGame() {
         System.out.print("ID игры: ");
-        String gameId = scanner.nextLine().trim();
+        final var gameId = scanner.nextLine().trim();
 
         try {
-            Map<String, Object> response = apiClient.createGame(gameId);
+            final var response = apiClient.createGame(gameId);
             this.currentGameId = gameId;
             System.out.println("✓ Игра создана: " + gameId);
             displayGameState(response);
@@ -133,10 +133,10 @@ public class ConsoleUI {
 
     private void joinGame() {
         System.out.print("ID игры: ");
-        String gameId = scanner.nextLine().trim();
+        final var gameId = scanner.nextLine().trim();
 
         try {
-            Map<String, Object> response = apiClient.joinGame(gameId);
+            final var response = apiClient.joinGame(gameId);
             this.currentGameId = gameId;
             System.out.println("✓ Присоединились к игре: " + gameId);
             displayGameState(response);
@@ -147,7 +147,7 @@ public class ConsoleUI {
 
     private void listGames() {
         try {
-            Object games = apiClient.listGames();
+            final var games = apiClient.listGames();
             System.out.println("Список игр:");
             System.out.println(games);
         } catch (Exception e) {
@@ -162,7 +162,7 @@ public class ConsoleUI {
         }
 
         try {
-            Map<String, Object> state = apiClient.getGameState(currentGameId);
+            final var state = apiClient.getGameState(currentGameId);
             displayGameState(state);
         } catch (Exception e) {
             System.out.println("✗ Ошибка получения состояния игры: " + e.getMessage());
@@ -179,10 +179,10 @@ public class ConsoleUI {
         System.out.println("PASS, SIX_SPADES, SIX_CLUBS, SIX_DIAMONDS, SIX_HEARTS, SIX_NO_TRUMP,");
         System.out.println("SEVEN_SPADES, ..., MISER, и т.д.");
         System.out.print("Ваша заявка: ");
-        String contract = scanner.nextLine().trim();
+        final var contract = scanner.nextLine().trim();
 
         try {
-            Map<String, Object> response = apiClient.placeBid(currentGameId, contract);
+            final var response = apiClient.placeBid(currentGameId, contract);
             System.out.println("✓ Заявка сделана: " + response.get("message"));
         } catch (Exception e) {
             System.out.println("✗ Ошибка: " + e.getMessage());
@@ -196,10 +196,10 @@ public class ConsoleUI {
         }
 
         System.out.print("Карты для сброса (например: '7♠,8♣'): ");
-        String cards = scanner.nextLine().trim();
+        final var cards = scanner.nextLine().trim();
 
         try {
-            Map<String, Object> response = apiClient.exchangeWidow(currentGameId, cards);
+            final var response = apiClient.exchangeWidow(currentGameId, cards);
             System.out.println("✓ Прикуп обменян: " + response.get("message"));
         } catch (Exception e) {
             System.out.println("✗ Ошибка: " + e.getMessage());
@@ -213,10 +213,10 @@ public class ConsoleUI {
         }
 
         System.out.print("Карта для игры (например: '7♠'): ");
-        String card = scanner.nextLine().trim();
+        final var card = scanner.nextLine().trim();
 
         try {
-            Map<String, Object> response = apiClient.playCard(currentGameId, card);
+            final var response = apiClient.playCard(currentGameId, card);
             System.out.println("✓ Карта сыграна: " + response.get("message"));
         } catch (Exception e) {
             System.out.println("✗ Ошибка: " + e.getMessage());
@@ -230,14 +230,14 @@ public class ConsoleUI {
         }
 
         try {
-            Map<String, Object> response = apiClient.nextRound(currentGameId);
+            final var response = apiClient.nextRound(currentGameId);
             System.out.println("✓ Следующий раунд начат: " + response.get("message"));
         } catch (Exception e) {
             System.out.println("✗ Ошибка: " + e.getMessage());
         }
     }
 
-    private void displayGameState(Map<String, Object> state) {
+    private void displayGameState(final Map<String, Object> state) {
         System.out.println("\n╔════════════════════════════════════════════════════════════╗");
         System.out.println("║                   СОСТОЯНИЕ ИГРЫ                         ║");
         System.out.println("╠════════════════════════════════════════════════════════════╣");
@@ -247,7 +247,7 @@ public class ConsoleUI {
 
         // Next action description
         if (state.containsKey("nextActionDescription")) {
-            String nextAction = (String) state.get("nextActionDescription");
+            final var nextAction = (String) state.get("nextActionDescription");
             System.out.println("║");
             System.out.println("║ ► " + nextAction);
         }
@@ -261,11 +261,11 @@ public class ConsoleUI {
 
         // Show hand
         if (state.containsKey("hand")) {
-            List<Map<String, String>> hand = (List<Map<String, String>>) state.get("hand");
+            final var hand = (List<Map<String, String>>) state.get("hand");
             if (hand != null && !hand.isEmpty()) {
                 System.out.println("║ ВАШИ КАРТЫ:");
                 System.out.print("║   ");
-                for (Map<String, String> card : hand) {
+                for (final var card : hand) {
                     System.out.print(formatCard(card) + " ");
                 }
                 System.out.println();
@@ -275,11 +275,11 @@ public class ConsoleUI {
 
         // Show widow (if visible)
         if (state.containsKey("widow") && state.get("widow") != null) {
-            List<Map<String, String>> widow = (List<Map<String, String>>) state.get("widow");
+            final var widow = (List<Map<String, String>>) state.get("widow");
             if (!widow.isEmpty()) {
                 System.out.println("║ ПРИКУП:");
                 System.out.print("║   ");
-                for (Map<String, String> card : widow) {
+                for (final var card : widow) {
                     System.out.print(formatCard(card) + " ");
                 }
                 System.out.println();
@@ -289,10 +289,10 @@ public class ConsoleUI {
 
         // Show contract and trump
         if (state.containsKey("contract") && state.get("contract") != null) {
-            Map<String, String> contract = (Map<String, String>) state.get("contract");
+            final var contract = (Map<String, String>) state.get("contract");
             System.out.println("║ Контракт: " + contract.get("displayName"));
             if (state.containsKey("trumpSuit") && state.get("trumpSuit") != null) {
-                Map<String, String> trump = (Map<String, String>) state.get("trumpSuit");
+                final var trump = (Map<String, String>) state.get("trumpSuit");
                 System.out.println("║ Козырь: " + trump.get("symbol") + " " + trump.get("russianName"));
             }
         }
@@ -304,11 +304,11 @@ public class ConsoleUI {
 
         // Show bids
         if (state.containsKey("bids") && state.get("bids") != null) {
-            Map<String, String> bids = (Map<String, String>) state.get("bids");
+            final var bids = (Map<String, String>) state.get("bids");
             if (!bids.isEmpty()) {
                 System.out.println("║");
                 System.out.println("║ ЗАЯВКИ:");
-                for (Map.Entry<String, String> entry : bids.entrySet()) {
+                for (final var entry : bids.entrySet()) {
                     System.out.println("║   " + entry.getKey() + ": " + entry.getValue());
                 }
             }
@@ -316,11 +316,11 @@ public class ConsoleUI {
 
         // Show current trick
         if (state.containsKey("currentTrick") && state.get("currentTrick") != null) {
-            Map<String, Map<String, String>> trick = (Map<String, Map<String, String>>) state.get("currentTrick");
+            final var trick = (Map<String, Map<String, String>>) state.get("currentTrick");
             if (!trick.isEmpty()) {
                 System.out.println("║");
                 System.out.println("║ ТЕКУЩАЯ ВЗЯТКА:");
-                for (Map.Entry<String, Map<String, String>> entry : trick.entrySet()) {
+                for (final var entry : trick.entrySet()) {
                     System.out.println("║   " + entry.getKey() + ": " + formatCard(entry.getValue()));
                 }
             }
@@ -328,17 +328,18 @@ public class ConsoleUI {
 
         // Show scores
         if (state.containsKey("scores") && state.get("scores") != null) {
-            Map<String, Integer> scores = (Map<String, Integer>) state.get("scores");
+            final var scores = (Map<String, Integer>) state.get("scores");
             System.out.println("║");
             System.out.println("║ СЧЕТ:");
-            for (Map.Entry<String, Integer> entry : scores.entrySet()) {
-                int bullets = 0, mountains = 0;
+            for (final var entry : scores.entrySet()) {
+                var bullets = 0;
+                var mountains = 0;
                 if (state.containsKey("bullets")) {
-                    Map<String, Integer> bulletsMap = (Map<String, Integer>) state.get("bullets");
+                    final var bulletsMap = (Map<String, Integer>) state.get("bullets");
                     bullets = bulletsMap.getOrDefault(entry.getKey(), 0);
                 }
                 if (state.containsKey("mountains")) {
-                    Map<String, Integer> mountainsMap = (Map<String, Integer>) state.get("mountains");
+                    final var mountainsMap = (Map<String, Integer>) state.get("mountains");
                     mountains = mountainsMap.getOrDefault(entry.getKey(), 0);
                 }
                 System.out.printf("║   %s: %d очков (пуля: %d, гора: %d)%n",
@@ -348,7 +349,7 @@ public class ConsoleUI {
 
         // Show other players
         if (state.containsKey("otherPlayers")) {
-            List<String> others = (List<String>) state.get("otherPlayers");
+            final var others = (List<String>) state.get("otherPlayers");
             if (!others.isEmpty()) {
                 System.out.println("║");
                 System.out.println("║ Другие игроки: " + String.join(", ", others));
@@ -358,20 +359,20 @@ public class ConsoleUI {
         System.out.println("╚════════════════════════════════════════════════════════════╝\n");
     }
 
-    private String formatCard(Map<String, String> card) {
+    private String formatCard(final Map<String, String> card) {
         if (card == null) return "?";
-        String rank = card.get("rank");
-        String suit = card.get("suit");
+        final var rank = card.get("rank");
+        final var suit = card.get("suit");
         if (rank == null || suit == null) return "?";
 
         // Get display values
-        String rankSymbol = getRankSymbol(rank);
-        String suitSymbol = getSuitSymbol(suit);
+        final var rankSymbol = getRankSymbol(rank);
+        final var suitSymbol = getSuitSymbol(suit);
 
         return rankSymbol + suitSymbol;
     }
 
-    private String getRankSymbol(String rank) {
+    private String getRankSymbol(final String rank) {
         return switch (rank) {
             case "SEVEN" -> "7";
             case "EIGHT" -> "8";
@@ -385,7 +386,7 @@ public class ConsoleUI {
         };
     }
 
-    private String getSuitSymbol(String suit) {
+    private String getSuitSymbol(final String suit) {
         return switch (suit) {
             case "SPADES" -> "♠";
             case "CLUBS" -> "♣";

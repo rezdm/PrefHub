@@ -24,7 +24,7 @@ public class Card implements java.io.Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Card card = (Card) o;
+        final var card = (Card) o;
         return suit == card.suit && rank == card.rank;
     }
 

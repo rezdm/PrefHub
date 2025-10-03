@@ -16,13 +16,13 @@ public class ApiClient {
     private final ObjectMapper objectMapper;
     private String authToken;
 
-    public ApiClient(String baseUrl) {
+    public ApiClient(final String baseUrl) {
         this.baseUrl = baseUrl;
         this.httpClient = HttpClient.newHttpClient();
         this.objectMapper = new ObjectMapper();
     }
 
-    public void setAuthToken(String token) {
+    public void setAuthToken(final String token) {
         this.authToken = token;
     }
 
@@ -30,14 +30,14 @@ public class ApiClient {
         return authToken;
     }
 
-    public Map<String, Object> register(String username, String password) throws IOException, InterruptedException {
-        String json = objectMapper.writeValueAsString(Map.of("username", username, "password", password));
+    public Map<String, Object> register(final String username, final String password) throws IOException, InterruptedException {
+        final var json = objectMapper.writeValueAsString(Map.of("username", username, "password", password));
         return post("/api/auth/register", json, false);
     }
 
-    public Map<String, Object> login(String username, String password) throws IOException, InterruptedException {
-        String json = objectMapper.writeValueAsString(Map.of("username", username, "password", password));
-        Map<String, Object> response = post("/api/auth/login", json, false);
+    public Map<String, Object> login(final String username, final String password) throws IOException, InterruptedException {
+        final var json = objectMapper.writeValueAsString(Map.of("username", username, "password", password));
+        final var response = post("/api/auth/login", json, false);
         if (response.containsKey("token")) {
             this.authToken = (String) response.get("token");
         }
@@ -48,13 +48,13 @@ public class ApiClient {
         return post("/api/auth/logout", "{}", true);
     }
 
-    public Map<String, Object> createGame(String gameId) throws IOException, InterruptedException {
-        String json = objectMapper.writeValueAsString(Map.of("gameId", gameId));
+    public Map<String, Object> createGame(final String gameId) throws IOException, InterruptedException {
+        final var json = objectMapper.writeValueAsString(Map.of("gameId", gameId));
         return post("/api/games/create", json, true);
     }
 
-    public Map<String, Object> joinGame(String gameId) throws IOException, InterruptedException {
-        String json = objectMapper.writeValueAsString(Map.of("gameId", gameId));
+    public Map<String, Object> joinGame(final String gameId) throws IOException, InterruptedException {
+        final var json = objectMapper.writeValueAsString(Map.of("gameId", gameId));
         return post("/api/games/join", json, true);
     }
 
@@ -62,32 +62,32 @@ public class ApiClient {
         return get("/api/games/list", true);
     }
 
-    public Map<String, Object> getGameState(String gameId) throws IOException, InterruptedException {
+    public Map<String, Object> getGameState(final String gameId) throws IOException, InterruptedException {
         return get("/api/games/state?gameId=" + gameId, true);
     }
 
-    public Map<String, Object> placeBid(String gameId, String contract) throws IOException, InterruptedException {
-        String json = objectMapper.writeValueAsString(Map.of("gameId", gameId, "contract", contract));
+    public Map<String, Object> placeBid(final String gameId, final String contract) throws IOException, InterruptedException {
+        final var json = objectMapper.writeValueAsString(Map.of("gameId", gameId, "contract", contract));
         return post("/api/games/bid", json, true);
     }
 
-    public Map<String, Object> exchangeWidow(String gameId, String cards) throws IOException, InterruptedException {
-        String json = objectMapper.writeValueAsString(Map.of("gameId", gameId, "cards", cards));
+    public Map<String, Object> exchangeWidow(final String gameId, final String cards) throws IOException, InterruptedException {
+        final var json = objectMapper.writeValueAsString(Map.of("gameId", gameId, "cards", cards));
         return post("/api/games/exchange", json, true);
     }
 
-    public Map<String, Object> playCard(String gameId, String card) throws IOException, InterruptedException {
-        String json = objectMapper.writeValueAsString(Map.of("gameId", gameId, "card", card));
+    public Map<String, Object> playCard(final String gameId, final String card) throws IOException, InterruptedException {
+        final var json = objectMapper.writeValueAsString(Map.of("gameId", gameId, "card", card));
         return post("/api/games/play", json, true);
     }
 
-    public Map<String, Object> nextRound(String gameId) throws IOException, InterruptedException {
-        String json = objectMapper.writeValueAsString(Map.of("gameId", gameId));
+    public Map<String, Object> nextRound(final String gameId) throws IOException, InterruptedException {
+        final var json = objectMapper.writeValueAsString(Map.of("gameId", gameId));
         return post("/api/games/next-round", json, true);
     }
 
-    private Map<String, Object> post(String path, String body, boolean auth) throws IOException, InterruptedException {
-        HttpRequest.Builder builder = HttpRequest.newBuilder()
+    private Map<String, Object> post(final String path, final String body, final boolean auth) throws IOException, InterruptedException {
+        final var builder = HttpRequest.newBuilder()
                 .uri(URI.create(baseUrl + path))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8));
@@ -96,14 +96,14 @@ public class ApiClient {
             builder.header("Authorization", "Bearer " + authToken);
         }
 
-        HttpRequest request = builder.build();
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        final var request = builder.build();
+        final var response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
         return objectMapper.readValue(response.body(), Map.class);
     }
 
-    private Map<String, Object> get(String path, boolean auth) throws IOException, InterruptedException {
-        HttpRequest.Builder builder = HttpRequest.newBuilder()
+    private Map<String, Object> get(final String path, final boolean auth) throws IOException, InterruptedException {
+        final var builder = HttpRequest.newBuilder()
                 .uri(URI.create(baseUrl + path))
                 .header("Content-Type", "application/json")
                 .GET();
@@ -112,8 +112,8 @@ public class ApiClient {
             builder.header("Authorization", "Bearer " + authToken);
         }
 
-        HttpRequest request = builder.build();
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        final var request = builder.build();
+        final var response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
         return objectMapper.readValue(response.body(), Map.class);
     }

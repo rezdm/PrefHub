@@ -47,13 +47,13 @@ public class PlayerView {
     private final Map<String, Integer> bullets;
     private final Map<String, Integer> mountains;
 
-    public PlayerView(String gameId, String playerUsername, GamePhase phase, int roundNumber,
-                     List<Card> hand, List<String> otherPlayers, String currentPlayerUsername,
-                     boolean isYourTurn, List<String> allowedActions, String nextActionDescription,
-                     Map<String, String> bids, Contract highestBid, List<Card> widow,
-                     Contract contract, String declarerUsername, Suit trumpSuit,
-                     Map<String, Card> currentTrick, Map<String, Integer> tricksWon,
-                     Map<String, Integer> scores, Map<String, Integer> bullets, Map<String, Integer> mountains) {
+    public PlayerView(final String gameId, final String playerUsername, final GamePhase phase, final int roundNumber,
+                     final List<Card> hand, final List<String> otherPlayers, final String currentPlayerUsername,
+                     final boolean isYourTurn, final List<String> allowedActions, final String nextActionDescription,
+                     final Map<String, String> bids, final Contract highestBid, final List<Card> widow,
+                     final Contract contract, final String declarerUsername, final Suit trumpSuit,
+                     final Map<String, Card> currentTrick, final Map<String, Integer> tricksWon,
+                     final Map<String, Integer> scores, final Map<String, Integer> bullets, final Map<String, Integer> mountains) {
         this.gameId = gameId;
         this.playerUsername = playerUsername;
         this.phase = phase;

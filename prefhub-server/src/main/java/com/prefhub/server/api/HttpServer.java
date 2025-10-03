@@ -28,12 +28,12 @@ public class HttpServer {
     private final AuthService authService;
     private final GameService gameService;
 
-    public HttpServer(int port, AuthService authService, GameService gameService) throws IOException {
+    public HttpServer(final int port, final AuthService authService, final GameService gameService) throws IOException {
         logger.info("Initializing HTTP server on port {}", port);
 
         // Get all IPv4 addresses and bind to first one (usually 0.0.0.0)
         InetAddress ipv4Address = null;
-        for (InetAddress addr : InetAddress.getAllByName("0.0.0.0")) {
+        for (final var addr : InetAddress.getAllByName("0.0.0.0")) {
             if (addr instanceof Inet4Address) {
                 ipv4Address = addr;
                 break;
@@ -85,22 +85,22 @@ public class HttpServer {
         logger.info("HTTP server stopped");
     }
 
-    private void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
-        byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
+    private void sendResponse(final HttpExchange exchange, final int statusCode, final String response) throws IOException {
+        final var bytes = response.getBytes(StandardCharsets.UTF_8);
         exchange.getResponseHeaders().set("Content-Type", "application/json");
         exchange.sendResponseHeaders(statusCode, bytes.length);
-        try (OutputStream os = exchange.getResponseBody()) {
+        try (final var os = exchange.getResponseBody()) {
             os.write(bytes);
         }
     }
 
-    private void sendError(HttpExchange exchange, int statusCode, String message) throws IOException {
-        String json = String.format("{\"error\":\"%s\"}", message);
+    private void sendError(final HttpExchange exchange, final int statusCode, final String message) throws IOException {
+        final var json = String.format("{\"error\":\"%s\"}", message);
         sendResponse(exchange, statusCode, json);
     }
 
-    private String getAuthToken(HttpExchange exchange) {
-        String auth = exchange.getRequestHeaders().getFirst("Authorization");
+    private String getAuthToken(final HttpExchange exchange) {
+        final var auth = exchange.getRequestHeaders().getFirst("Authorization");
         if (auth != null && auth.startsWith("Bearer ")) {
             return auth.substring(7);
         }
@@ -110,9 +110,9 @@ public class HttpServer {
     // Handlers
     private class StaticFileHandler implements HttpHandler {
         @Override
-        public void handle(HttpExchange exchange) throws IOException {
-            String path = exchange.getRequestURI().getPath();
-            String clientIp = exchange.getRemoteAddress().getAddress().getHostAddress();
+        public void handle(final HttpExchange exchange) throws IOException {
+            var path = exchange.getRequestURI().getPath();
+            final var clientIp = exchange.getRemoteAddress().getAddress().getHostAddress();
 
             // Default to index.html for root path
             if (path.equals("/")) {
@@ -120,33 +120,33 @@ public class HttpServer {
             }
 
             // Serve file from resources/static
-            try (InputStream is = getClass().getResourceAsStream("/static" + path)) {
+            try (final var is = getClass().getResourceAsStream("/static" + path)) {
                 if (is == null) {
                     accessLogger.info("{} {} {} - 404", clientIp, exchange.getRequestMethod(), exchange.getRequestURI().getPath());
                     logger.debug("File not found: {}", path);
-                    String notFound = "404 Not Found";
+                    final var notFound = "404 Not Found";
                     exchange.sendResponseHeaders(404, notFound.length());
-                    try (OutputStream os = exchange.getResponseBody()) {
+                    try (final var os = exchange.getResponseBody()) {
                         os.write(notFound.getBytes());
                     }
                     return;
                 }
 
                 // Determine content type
-                String contentType = getContentType(path);
+                final var contentType = getContentType(path);
                 exchange.getResponseHeaders().set("Content-Type", contentType);
 
                 // Read and send file
-                byte[] bytes = is.readAllBytes();
+                final var bytes = is.readAllBytes();
                 exchange.sendResponseHeaders(200, bytes.length);
-                try (OutputStream os = exchange.getResponseBody()) {
+                try (final var os = exchange.getResponseBody()) {
                     os.write(bytes);
                 }
                 accessLogger.info("{} {} {} - 200", clientIp, exchange.getRequestMethod(), exchange.getRequestURI().getPath());
             }
         }
 
-        private String getContentType(String path) {
+        private String getContentType(final String path) {
             if (path.endsWith(".html")) return "text/html; charset=UTF-8";
             if (path.endsWith(".js")) return "application/javascript; charset=UTF-8";
             if (path.endsWith(".css")) return "text/css; charset=UTF-8";
@@ -157,8 +157,8 @@ public class HttpServer {
 
     private class RegisterHandler implements HttpHandler {
         @Override
-        public void handle(HttpExchange exchange) throws IOException {
-            String clientIp = exchange.getRemoteAddress().getAddress().getHostAddress();
+        public void handle(final HttpExchange exchange) throws IOException {
+            final var clientIp = exchange.getRemoteAddress().getAddress().getHostAddress();
             accessLogger.info("{} {} {}", clientIp, exchange.getRequestMethod(), exchange.getRequestURI().getPath());
 
             if (!"POST".equals(exchange.getRequestMethod())) {
@@ -167,10 +167,10 @@ public class HttpServer {
             }
 
             try {
-                String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-                var request = objectMapper.readValue(body, java.util.Map.class);
-                String username = (String) request.get("username");
-                String password = (String) request.get("password");
+                final var body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                final var request = objectMapper.readValue(body, java.util.Map.class);
+                final var username = (String) request.get("username");
+                final var password = (String) request.get("password");
 
                 authService.register(username, password);
                 logger.info("New user registered: {}", username);
@@ -184,8 +184,8 @@ public class HttpServer {
 
     private class LoginHandler implements HttpHandler {
         @Override
-        public void handle(HttpExchange exchange) throws IOException {
-            String clientIp = exchange.getRemoteAddress().getAddress().getHostAddress();
+        public void handle(final HttpExchange exchange) throws IOException {
+            final var clientIp = exchange.getRemoteAddress().getAddress().getHostAddress();
             accessLogger.info("{} {} {}", clientIp, exchange.getRequestMethod(), exchange.getRequestURI().getPath());
 
             if (!"POST".equals(exchange.getRequestMethod())) {
@@ -194,14 +194,14 @@ public class HttpServer {
             }
 
             try {
-                String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-                var request = objectMapper.readValue(body, java.util.Map.class);
-                String username = (String) request.get("username");
-                String password = (String) request.get("password");
+                final var body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                final var request = objectMapper.readValue(body, java.util.Map.class);
+                final var username = (String) request.get("username");
+                final var password = (String) request.get("password");
 
-                String token = authService.login(username, password);
+                final var token = authService.login(username, password);
                 logger.info("User logged in: {} from {}", username, clientIp);
-                String json = objectMapper.writeValueAsString(java.util.Map.of("token", token));
+                final var json = objectMapper.writeValueAsString(java.util.Map.of("token", token));
                 sendResponse(exchange, 200, json);
             } catch (Exception e) {
                 logger.warn("Login failed from {}: {}", clientIp, e.getMessage());
@@ -212,13 +212,13 @@ public class HttpServer {
 
     private class LogoutHandler implements HttpHandler {
         @Override
-        public void handle(HttpExchange exchange) throws IOException {
+        public void handle(final HttpExchange exchange) throws IOException {
             if (!"POST".equals(exchange.getRequestMethod())) {
                 sendError(exchange, 405, "Method not allowed");
                 return;
             }
 
-            String token = getAuthToken(exchange);
+            final var token = getAuthToken(exchange);
             if (token == null) {
                 sendError(exchange, 401, "Unauthorized");
                 return;
@@ -231,8 +231,8 @@ public class HttpServer {
 
     private class CreateGameHandler implements HttpHandler {
         @Override
-        public void handle(HttpExchange exchange) throws IOException {
-            String clientIp = exchange.getRemoteAddress().getAddress().getHostAddress();
+        public void handle(final HttpExchange exchange) throws IOException {
+            final var clientIp = exchange.getRemoteAddress().getAddress().getHostAddress();
             accessLogger.info("{} {} {}", clientIp, exchange.getRequestMethod(), exchange.getRequestURI().getPath());
 
             if (!"POST".equals(exchange.getRequestMethod())) {
@@ -240,20 +240,20 @@ public class HttpServer {
                 return;
             }
 
-            String token = getAuthToken(exchange);
+            final var token = getAuthToken(exchange);
             if (!authService.isAuthenticated(token)) {
                 sendError(exchange, 401, "Unauthorized");
                 return;
             }
 
             try {
-                String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-                var request = objectMapper.readValue(body, java.util.Map.class);
-                String gameId = (String) request.get("gameId");
+                final var body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                final var request = objectMapper.readValue(body, java.util.Map.class);
+                final var gameId = (String) request.get("gameId");
 
-                var gameState = gameService.createGame(gameId);
+                final var gameState = gameService.createGame(gameId);
                 logger.info("Game created: {}", gameId);
-                String json = objectMapper.writeValueAsString(gameState);
+                final var json = objectMapper.writeValueAsString(gameState);
                 sendResponse(exchange, 200, json);
             } catch (Exception e) {
                 logger.error("Failed to create game: {}", e.getMessage(), e);
@@ -264,8 +264,8 @@ public class HttpServer {
 
     private class JoinGameHandler implements HttpHandler {
         @Override
-        public void handle(HttpExchange exchange) throws IOException {
-            String clientIp = exchange.getRemoteAddress().getAddress().getHostAddress();
+        public void handle(final HttpExchange exchange) throws IOException {
+            final var clientIp = exchange.getRemoteAddress().getAddress().getHostAddress();
             accessLogger.info("{} {} {}", clientIp, exchange.getRequestMethod(), exchange.getRequestURI().getPath());
 
             if (!"POST".equals(exchange.getRequestMethod())) {
@@ -273,21 +273,21 @@ public class HttpServer {
                 return;
             }
 
-            String token = getAuthToken(exchange);
-            String username = authService.validateToken(token);
+            final var token = getAuthToken(exchange);
+            final var username = authService.validateToken(token);
             if (username == null) {
                 sendError(exchange, 401, "Unauthorized");
                 return;
             }
 
             try {
-                String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-                var request = objectMapper.readValue(body, java.util.Map.class);
-                String gameId = (String) request.get("gameId");
+                final var body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                final var request = objectMapper.readValue(body, java.util.Map.class);
+                final var gameId = (String) request.get("gameId");
 
-                var gameState = gameService.joinGame(gameId, username);
+                final var gameState = gameService.joinGame(gameId, username);
                 logger.info("Player {} joined game: {}", username, gameId);
-                String json = objectMapper.writeValueAsString(gameState);
+                final var json = objectMapper.writeValueAsString(gameState);
                 sendResponse(exchange, 200, json);
             } catch (Exception e) {
                 logger.error("Failed to join game: {}", e.getMessage());
@@ -298,41 +298,41 @@ public class HttpServer {
 
     private class ListGamesHandler implements HttpHandler {
         @Override
-        public void handle(HttpExchange exchange) throws IOException {
+        public void handle(final HttpExchange exchange) throws IOException {
             if (!"GET".equals(exchange.getRequestMethod())) {
                 sendError(exchange, 405, "Method not allowed");
                 return;
             }
 
-            String token = getAuthToken(exchange);
+            final var token = getAuthToken(exchange);
             if (!authService.isAuthenticated(token)) {
                 sendError(exchange, 401, "Unauthorized");
                 return;
             }
 
-            var games = gameService.getAllGames();
-            String json = objectMapper.writeValueAsString(games);
+            final var games = gameService.getAllGames();
+            final var json = objectMapper.writeValueAsString(games);
             sendResponse(exchange, 200, json);
         }
     }
 
     private class GameStateHandler implements HttpHandler {
         @Override
-        public void handle(HttpExchange exchange) throws IOException {
+        public void handle(final HttpExchange exchange) throws IOException {
             if (!"GET".equals(exchange.getRequestMethod())) {
                 sendError(exchange, 405, "Method not allowed");
                 return;
             }
 
-            String token = getAuthToken(exchange);
-            String username = authService.validateToken(token);
+            final var token = getAuthToken(exchange);
+            final var username = authService.validateToken(token);
             if (username == null) {
                 sendError(exchange, 401, "Unauthorized");
                 return;
             }
 
-            String query = exchange.getRequestURI().getQuery();
-            String gameId = query != null && query.startsWith("gameId=") ? query.substring(7) : null;
+            final var query = exchange.getRequestURI().getQuery();
+            final var gameId = query != null && query.startsWith("gameId=") ? query.substring(7) : null;
 
             if (gameId == null) {
                 sendError(exchange, 400, "Missing gameId parameter");
@@ -341,8 +341,8 @@ public class HttpServer {
 
             try {
                 // Return player-specific view instead of full game state
-                var playerView = gameService.getPlayerView(gameId, username);
-                String json = objectMapper.writeValueAsString(playerView);
+                final var playerView = gameService.getPlayerView(gameId, username);
+                final var json = objectMapper.writeValueAsString(playerView);
                 sendResponse(exchange, 200, json);
             } catch (Exception e) {
                 sendError(exchange, 404, e.getMessage());
@@ -352,8 +352,8 @@ public class HttpServer {
 
     private class PlaceBidHandler implements HttpHandler {
         @Override
-        public void handle(HttpExchange exchange) throws IOException {
-            String clientIp = exchange.getRemoteAddress().getAddress().getHostAddress();
+        public void handle(final HttpExchange exchange) throws IOException {
+            final var clientIp = exchange.getRemoteAddress().getAddress().getHostAddress();
             accessLogger.info("{} {} {}", clientIp, exchange.getRequestMethod(), exchange.getRequestURI().getPath());
 
             if (!"POST".equals(exchange.getRequestMethod())) {
@@ -361,18 +361,18 @@ public class HttpServer {
                 return;
             }
 
-            String token = getAuthToken(exchange);
-            String username = authService.validateToken(token);
+            final var token = getAuthToken(exchange);
+            final var username = authService.validateToken(token);
             if (username == null) {
                 sendError(exchange, 401, "Unauthorized");
                 return;
             }
 
             try {
-                String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-                var request = objectMapper.readValue(body, java.util.Map.class);
-                String gameId = (String) request.get("gameId");
-                String contractStr = (String) request.get("contract");
+                final var body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                final var request = objectMapper.readValue(body, java.util.Map.class);
+                final var gameId = (String) request.get("gameId");
+                final var contractStr = (String) request.get("contract");
 
                 gameService.placeBid(gameId, username, com.prefhub.core.model.Contract.valueOf(contractStr));
                 logger.debug("Player {} placed bid {} in game {}", username, contractStr, gameId);
@@ -386,23 +386,23 @@ public class HttpServer {
 
     private class ExchangeWidowHandler implements HttpHandler {
         @Override
-        public void handle(HttpExchange exchange) throws IOException {
+        public void handle(final HttpExchange exchange) throws IOException {
             if (!"POST".equals(exchange.getRequestMethod())) {
                 sendError(exchange, 405, "Method not allowed");
                 return;
             }
 
-            String token = getAuthToken(exchange);
-            String username = authService.validateToken(token);
+            final var token = getAuthToken(exchange);
+            final var username = authService.validateToken(token);
             if (username == null) {
                 sendError(exchange, 401, "Unauthorized");
                 return;
             }
 
             try {
-                String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-                var request = objectMapper.readValue(body, java.util.Map.class);
-                String gameId = (String) request.get("gameId");
+                final var body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                final var request = objectMapper.readValue(body, java.util.Map.class);
+                final var gameId = (String) request.get("gameId");
                 // Parse cards to discard
 
                 sendResponse(exchange, 200, "{\"message\":\"Widow exchanged successfully\"}");
@@ -414,23 +414,23 @@ public class HttpServer {
 
     private class PlayCardHandler implements HttpHandler {
         @Override
-        public void handle(HttpExchange exchange) throws IOException {
+        public void handle(final HttpExchange exchange) throws IOException {
             if (!"POST".equals(exchange.getRequestMethod())) {
                 sendError(exchange, 405, "Method not allowed");
                 return;
             }
 
-            String token = getAuthToken(exchange);
-            String username = authService.validateToken(token);
+            final var token = getAuthToken(exchange);
+            final var username = authService.validateToken(token);
             if (username == null) {
                 sendError(exchange, 401, "Unauthorized");
                 return;
             }
 
             try {
-                String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-                var request = objectMapper.readValue(body, java.util.Map.class);
-                String gameId = (String) request.get("gameId");
+                final var body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                final var request = objectMapper.readValue(body, java.util.Map.class);
+                final var gameId = (String) request.get("gameId");
                 // Parse card to play
 
                 sendResponse(exchange, 200, "{\"message\":\"Card played successfully\"}");
@@ -442,22 +442,22 @@ public class HttpServer {
 
     private class NextRoundHandler implements HttpHandler {
         @Override
-        public void handle(HttpExchange exchange) throws IOException {
+        public void handle(final HttpExchange exchange) throws IOException {
             if (!"POST".equals(exchange.getRequestMethod())) {
                 sendError(exchange, 405, "Method not allowed");
                 return;
             }
 
-            String token = getAuthToken(exchange);
+            final var token = getAuthToken(exchange);
             if (!authService.isAuthenticated(token)) {
                 sendError(exchange, 401, "Unauthorized");
                 return;
             }
 
             try {
-                String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-                var request = objectMapper.readValue(body, java.util.Map.class);
-                String gameId = (String) request.get("gameId");
+                final var body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                final var request = objectMapper.readValue(body, java.util.Map.class);
+                final var gameId = (String) request.get("gameId");
 
                 gameService.startNextRound(gameId);
                 sendResponse(exchange, 200, "{\"message\":\"Next round started\"}");

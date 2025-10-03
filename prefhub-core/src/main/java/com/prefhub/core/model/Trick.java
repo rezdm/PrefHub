@@ -45,8 +45,8 @@ public class Trick implements java.io.Serializable {
         Player winner = null;
         Card winningCard = null;
 
-        for (Map.Entry<Player, Card> entry : cardsPlayed.entrySet()) {
-            Card card = entry.getValue();
+        for (final var entry : cardsPlayed.entrySet()) {
+            final var card = entry.getValue();
 
             if (winningCard == null) {
                 winner = entry.getKey();
@@ -55,8 +55,8 @@ public class Trick implements java.io.Serializable {
             }
 
             // Козырь бьет некозырную
-            boolean currentIsTrump = trumpSuit != null && card.getSuit() == trumpSuit;
-            boolean winningIsTrump = trumpSuit != null && winningCard.getSuit() == trumpSuit;
+            final var currentIsTrump = trumpSuit != null && card.getSuit() == trumpSuit;
+            final var winningIsTrump = trumpSuit != null && winningCard.getSuit() == trumpSuit;
 
             if (currentIsTrump && !winningIsTrump) {
                 winner = entry.getKey();

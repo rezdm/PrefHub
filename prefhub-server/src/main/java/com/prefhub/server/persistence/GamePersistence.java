@@ -13,7 +13,7 @@ public class GamePersistence {
     private static final Logger logger = LoggerFactory.getLogger(GamePersistence.class);
     private final Path storageDirectory;
 
-    public GamePersistence(String storageDirectory) {
+    public GamePersistence(final String storageDirectory) {
         this.storageDirectory = Paths.get(storageDirectory);
 
         try {
@@ -24,9 +24,9 @@ public class GamePersistence {
         }
     }
 
-    public void saveGame(GameState gameState) {
-        File file = getGameFile(gameState.getGameId());
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
+    public void saveGame(final GameState gameState) {
+        final var file = getGameFile(gameState.getGameId());
+        try (final var oos = new ObjectOutputStream(new FileOutputStream(file))) {
             oos.writeObject(gameState);
             logger.debug("Game saved: {}", gameState.getGameId());
         } catch (IOException e) {
@@ -35,14 +35,14 @@ public class GamePersistence {
         }
     }
 
-    public GameState loadGame(String gameId) {
-        File file = getGameFile(gameId);
+    public GameState loadGame(final String gameId) {
+        final var file = getGameFile(gameId);
         if (!file.exists()) {
             logger.debug("Game file not found: {}", gameId);
             return null;
         }
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-            GameState gameState = (GameState) ois.readObject();
+        try (final var ois = new ObjectInputStream(new FileInputStream(file))) {
+            final var gameState = (GameState) ois.readObject();
             logger.debug("Game loaded: {}", gameId);
             return gameState;
         } catch (IOException | ClassNotFoundException e) {
@@ -51,15 +51,15 @@ public class GamePersistence {
         }
     }
 
-    public void deleteGame(String gameId) {
-        File file = getGameFile(gameId);
+    public void deleteGame(final String gameId) {
+        final var file = getGameFile(gameId);
         if (file.exists()) {
-            boolean deleted = file.delete();
+            final var deleted = file.delete();
             logger.debug("Game deleted: {} (success: {})", gameId, deleted);
         }
     }
 
-    private File getGameFile(String gameId) {
+    private File getGameFile(final String gameId) {
         return storageDirectory.resolve(gameId + ".dat").toFile();
     }
 }
