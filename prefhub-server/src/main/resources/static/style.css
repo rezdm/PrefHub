@@ -1,0 +1,264 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    color: white;
+}
+
+.header h1 {
+    font-size: 2em;
+}
+
+.card {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card h2 {
+    margin-bottom: 20px;
+    color: #1e3c72;
+    border-bottom: 2px solid #2a5298;
+    padding-bottom: 10px;
+}
+
+.card h3 {
+    margin: 15px 0 10px 0;
+    color: #2a5298;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #555;
+}
+
+.form-group input,
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.form-group input:focus,
+.form-control:focus {
+    outline: none;
+    border-color: #2a5298;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: #2a5298;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #1e3c72;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #545b62;
+}
+
+.btn-small {
+    padding: 8px 16px;
+    font-size: 13px;
+}
+
+#game-info {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+#game-info p {
+    margin: 8px 0;
+}
+
+.game-phase {
+    display: inline-block;
+    padding: 4px 12px;
+    background: #2a5298;
+    color: white;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.your-turn {
+    display: inline-block;
+    padding: 8px 16px;
+    background: #28a745;
+    color: white;
+    border-radius: 5px;
+    font-weight: 700;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+#hand-cards {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.card-button {
+    padding: 15px 20px;
+    background: white;
+    border: 2px solid #2a5298;
+    border-radius: 8px;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.card-button:hover {
+    background: #2a5298;
+    color: white;
+    transform: translateY(-3px);
+}
+
+#log-output {
+    max-height: 300px;
+    overflow-y: auto;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+}
+
+.log-entry {
+    margin: 5px 0;
+    padding: 5px;
+    border-left: 3px solid transparent;
+}
+
+.log-info {
+    border-left-color: #17a2b8;
+}
+
+.log-success {
+    border-left-color: #28a745;
+    color: #155724;
+}
+
+.log-error {
+    border-left-color: #dc3545;
+    color: #721c24;
+}
+
+.log-warning {
+    border-left-color: #ffc107;
+    color: #856404;
+}
+
+.log-time {
+    color: #6c757d;
+    font-size: 11px;
+    margin-right: 8px;
+}
+
+#username-display {
+    margin-right: 15px;
+    font-weight: 600;
+}
+
+.scores-table {
+    width: 100%;
+    margin-top: 15px;
+    border-collapse: collapse;
+}
+
+.scores-table th,
+.scores-table td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.scores-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+}
+
+.current-trick {
+    display: flex;
+    gap: 15px;
+    margin: 15px 0;
+    padding: 15px;
+    background: #fff3cd;
+    border-radius: 5px;
+}
+
+.trick-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.trick-card-value {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.trick-card-player {
+    font-size: 12px;
+    color: #666;
+}
