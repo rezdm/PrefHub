@@ -251,6 +251,7 @@ public class HttpServer {
 
                 final var username = authService.validateToken(token);
                 gameService.createGame(gameId, ruleId);
+                gameService.joinGame(gameId, username);
                 logger.info("Game created: {} with rules: {}", gameId, ruleId != null ? ruleId : "default");
                 final var playerView = gameService.getPlayerView(gameId, username);
                 final var json = objectMapper.writeValueAsString(playerView);

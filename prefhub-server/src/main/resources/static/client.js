@@ -1,9 +1,9 @@
 class PrefHubClient {
     constructor() {
         this.baseUrl = window.location.origin;
-        this.authToken = localStorage.getItem('authToken');
-        this.currentGameId = localStorage.getItem('currentGameId');
-        this.currentUsername = localStorage.getItem('username');
+        this.authToken = localStorage.getItem('authToken')?.trim() || null;
+        this.currentGameId = localStorage.getItem('currentGameId')?.trim() || null;
+        this.currentUsername = localStorage.getItem('username')?.trim() || null;
         this.pollingInterval = null;
         this.currentRules = null;
         this.availableRules = null;
@@ -72,7 +72,8 @@ class PrefHubClient {
             };
 
             if (requireAuth && this.authToken) {
-                options.headers['Authorization'] = `Bearer ${this.authToken}`;
+                const cleanToken = this.authToken.trim().replace(/[\x00-\x1F\x80-\xFF]/g, '');
+                options.headers['Authorization'] = `Bearer ${cleanToken}`;
             }
 
             if (body) {

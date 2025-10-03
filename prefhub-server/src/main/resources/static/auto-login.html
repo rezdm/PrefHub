@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Auto Login - PrefHub</title>
+</head>
+<body>
+    <p>Authenticating...</p>
+    <script>
+        // Parse URL parameters
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+        const username = params.get('username');
+        const gameId = params.get('gameId');
+
+        console.log('Auto-login received:', { token, username, gameId });
+
+        if (token && username) {
+            // Clean and validate token (should be alphanumeric with hyphens only)
+            const cleanToken = token.trim();
+            const cleanUsername = username.trim();
+            const cleanGameId = gameId ? gameId.trim() : null;
+
+            console.log('Cleaned values:', { cleanToken, cleanUsername, cleanGameId });
+
+            // Set localStorage
+            localStorage.setItem('authToken', cleanToken);
+            localStorage.setItem('username', cleanUsername);
+            if (cleanGameId) {
+                localStorage.setItem('currentGameId', cleanGameId);
+            }
+
+            console.log('Redirecting to main page...');
+            // Redirect to main page
+            window.location.href = '/';
+        } else {
+            document.body.innerHTML = '<p>Error: Missing authentication parameters</p>';
+            console.error('Missing parameters:', { token, username, gameId });
+        }
+    </script>
+</body>
+</html>
