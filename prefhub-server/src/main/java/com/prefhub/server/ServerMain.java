@@ -27,7 +27,7 @@ public class ServerMain {
 
             final var persistence = new GamePersistence(storageDir);
             final var authService = new AuthService();
-            final var rulesLoader = new RulesLoader(storageDir);
+            final var rulesLoader = new RulesLoader();
             final var gameService = new GameService(persistence, rulesLoader);
 
             final var server = new HttpServer(port, authService, gameService);

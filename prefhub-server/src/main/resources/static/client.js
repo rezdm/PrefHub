@@ -5,21 +5,45 @@ class PrefHubClient {
         this.currentGameId = localStorage.getItem('currentGameId');
         this.currentUsername = localStorage.getItem('username');
         this.pollingInterval = null;
+        this.currentRules = null;
+        this.availableRules = null;
 
         this.init();
     }
 
-    init() {
+    async init() {
         this.log('Клиент инициализирован', 'info');
 
         if (this.authToken) {
             this.showMainSection();
+            await this.loadAvailableRules();
             if (this.currentGameId) {
                 $('#game-id').val(this.currentGameId);
                 this.startPolling();
             }
         } else {
             this.showAuthSection();
+        }
+    }
+
+    async loadAvailableRules() {
+        try {
+            this.availableRules = await this.apiCall('/api/rules/list', 'GET', null, false);
+            this.displayAvailableRules();
+        } catch (error) {
+            this.log(`Не удалось загрузить правила: ${error.message}`, 'warning');
+        }
+    }
+
+    displayAvailableRules() {
+        if (!this.availableRules) return;
+
+        const select = $('#rule-select');
+        select.empty();
+        select.append('<option value="">По умолчанию (Ленинградка)</option>');
+
+        for (const [ruleId, description] of Object.entries(this.availableRules)) {
+            select.append(`<option value="${ruleId}">${description}</option>`);
         }
     }
 
@@ -117,6 +141,7 @@ class PrefHubClient {
 
             this.log('Вход выполнен успешно', 'success');
             this.showMainSection();
+            await this.loadAvailableRules();
         } catch (error) {
             this.log(`Ошибка входа: ${error.message}`, 'error');
         }
@@ -143,6 +168,7 @@ class PrefHubClient {
 
     async createGame() {
         const gameId = $('#game-id').val().trim();
+        const ruleId = $('#rule-select').val();
 
         if (!gameId) {
             this.log('Введите ID игры', 'warning');
@@ -150,11 +176,11 @@ class PrefHubClient {
         }
 
         try {
-            const data = await this.apiCall('/api/games/create', 'POST', { gameId });
+            const data = await this.apiCall('/api/games/create', 'POST', { gameId, ruleId });
             this.currentGameId = gameId;
             localStorage.setItem('currentGameId', gameId);
 
-            this.log(`Игра "${gameId}" создана`, 'success');
+            this.log(`Игра "${gameId}" создана с правилами: ${ruleId || 'default'}`, 'success');
             this.displayGameState(data);
             this.startPolling();
         } catch (error) {
@@ -218,12 +244,34 @@ class PrefHubClient {
     displayGameState(state) {
         $('#game-state').show();
 
+        // Store rules
+        if (state.rules) {
+            this.currentRules = state.rules;
+        }
+
         let html = '';
 
         // Basic info
         html += `<p><strong>Игра:</strong> ${state.gameId || 'N/A'}</p>`;
         html += `<p><strong>Раунд:</strong> ${state.roundNumber || 0}</p>`;
         html += `<p><strong>Фаза:</strong> <span class="game-phase">${state.phase || 'N/A'}</span></p>`;
+
+        // Display rules info
+        if (this.currentRules) {
+            html += `<p><strong>Правила:</strong> ${this.currentRules.name}</p>`;
+            html += `<details><summary>Подробнее о правилах</summary>`;
+            html += `<div class="rules-details">`;
+            html += `<p>${this.currentRules.description}</p>`;
+            html += `<p>Выход из распасов: ${this.formatMizerExit(this.currentRules.mizerExitType)}</p>`;
+            html += `<p>6 пик: ${this.currentRules.mandatory6SpadesWhist ? 'обязательный вист' : 'не обязательный'}</p>`;
+            html += `<p>Пол-вист: ${this.currentRules.allowHalfWhist ? 'разрешён' : 'запрещён'}</p>`;
+            html += `<p>Десятерная: ${this.currentRules.tenGameMode === 'CHECKED' ? 'проверяется' : 'вистуется'}</p>`;
+            html += `<p>Вист: ${this.currentRules.whistType === 'OPEN' ? 'открытый' : 'закрытый'}</p>`;
+            if (this.currentRules.poolEnabled) {
+                html += `<p>Пуля: включена (размер: ${this.currentRules.poolSize})</p>`;
+            }
+            html += `</div></details>`;
+        }
 
         if (state.nextActionDescription) {
             html += `<p><strong>Следующее действие:</strong> ${state.nextActionDescription}</p>`;
@@ -422,6 +470,15 @@ class PrefHubClient {
             clearInterval(this.pollingInterval);
             this.pollingInterval = null;
             this.log('Автообновление остановлено', 'info');
+        }
+    }
+
+    formatMizerExit(type) {
+        switch (type) {
+            case 'FLAT_6': return '6-6-6-6...';
+            case 'ESCALATING_678': return '6-7-8-8-8...';
+            case 'ESCALATING_677': return '6-7-7-7-7...';
+            default: return type;
         }
     }
 }

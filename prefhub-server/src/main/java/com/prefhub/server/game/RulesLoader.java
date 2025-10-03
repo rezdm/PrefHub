@@ -3,55 +3,49 @@ package com.prefhub.server.game;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.prefhub.core.model.GameRules;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Загрузчик конфигураций правил игры
+ * Загрузчик конфигураций правил игры из classpath
  */
 public class RulesLoader {
-    private final String rulesDirectory;
+    private static final String RULES_PATH = "/rules/";
+    private static final String[] RULE_FILES = {
+        "sochinka.json",
+        "leningradka.json",
+        "stalingradka.json"
+    };
+
     private final ObjectMapper objectMapper;
     private final Map<String, GameRules> availableRules;
 
-    public RulesLoader(final String gameDataPath) {
-        this.rulesDirectory = gameDataPath + "/rules";
+    public RulesLoader() {
         this.objectMapper = new ObjectMapper();
         this.availableRules = new HashMap<>();
         loadAllRules();
     }
 
     /**
-     * Загружает все правила из директории rules
+     * Загружает все правила из classpath resources
      */
     private void loadAllRules() {
-        final var rulesDir = new File(rulesDirectory);
+        for (final var fileName : RULE_FILES) {
+            final var resourcePath = RULES_PATH + fileName;
+            try (final InputStream is = getClass().getResourceAsStream(resourcePath)) {
+                if (is == null) {
+                    System.err.println("Rules file not found in classpath: " + resourcePath);
+                    continue;
+                }
 
-        if (!rulesDir.exists() || !rulesDir.isDirectory()) {
-            System.err.println("Rules directory not found: " + rulesDirectory);
-            return;
-        }
-
-        final var jsonFiles = rulesDir.listFiles((dir, name) -> name.endsWith(".json"));
-
-        if (jsonFiles == null || jsonFiles.length == 0) {
-            System.err.println("No rule files found in: " + rulesDirectory);
-            return;
-        }
-
-        for (final var file : jsonFiles) {
-            try {
-                final var rules = objectMapper.readValue(file, GameRules.class);
-                final var ruleId = file.getName().replace(".json", "");
+                final var rules = objectMapper.readValue(is, GameRules.class);
+                final var ruleId = fileName.replace(".json", "");
                 availableRules.put(ruleId, rules);
                 System.out.println("Loaded rules: " + rules.getName() + " (ID: " + ruleId + ")");
             } catch (IOException e) {
-                System.err.println("Failed to load rules from: " + file.getName());
+                System.err.println("Failed to load rules from: " + resourcePath);
                 e.printStackTrace();
             }
         }

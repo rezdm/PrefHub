@@ -63,9 +63,11 @@ public class HttpServer {
         server.createContext("/api/games/list", new ListGamesHandler());
         server.createContext("/api/games/state", new GameStateHandler());
         server.createContext("/api/games/bid", new PlaceBidHandler());
+        server.createContext("/api/games/available-bids", new AvailableBidsHandler());
         server.createContext("/api/games/exchange", new ExchangeWidowHandler());
         server.createContext("/api/games/play", new PlayCardHandler());
         server.createContext("/api/games/next-round", new NextRoundHandler());
+        server.createContext("/api/rules/list", new ListRulesHandler());
     }
 
     public void start() {
@@ -245,10 +247,13 @@ public class HttpServer {
                 final var body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
                 final var request = objectMapper.readValue(body, java.util.Map.class);
                 final var gameId = (String) request.get("gameId");
+                final var ruleId = (String) request.get("ruleId");
 
-                final var gameState = gameService.createGame(gameId);
-                logger.info("Game created: {}", gameId);
-                final var json = objectMapper.writeValueAsString(gameState);
+                final var username = authService.validateToken(token);
+                gameService.createGame(gameId, ruleId);
+                logger.info("Game created: {} with rules: {}", gameId, ruleId != null ? ruleId : "default");
+                final var playerView = gameService.getPlayerView(gameId, username);
+                final var json = objectMapper.writeValueAsString(playerView);
                 sendResponse(exchange, 200, json);
             } catch (Exception e) {
                 logger.error("Failed to create game: {}", e.getMessage(), e);
@@ -280,9 +285,10 @@ public class HttpServer {
                 final var request = objectMapper.readValue(body, java.util.Map.class);
                 final var gameId = (String) request.get("gameId");
 
-                final var gameState = gameService.joinGame(gameId, username);
+                gameService.joinGame(gameId, username);
                 logger.info("Player {} joined game: {}", username, gameId);
-                final var json = objectMapper.writeValueAsString(gameState);
+                final var playerView = gameService.getPlayerView(gameId, username);
+                final var json = objectMapper.writeValueAsString(playerView);
                 sendResponse(exchange, 200, json);
             } catch (Exception e) {
                 logger.error("Failed to join game: {}", e.getMessage());
@@ -456,6 +462,55 @@ public class HttpServer {
 
                 gameService.startNextRound(gameId);
                 sendResponse(exchange, 200, "{\"message\":\"Next round started\"}");
+            } catch (Exception e) {
+                sendError(exchange, 400, e.getMessage());
+            }
+        }
+    }
+
+    private class AvailableBidsHandler implements HttpHandler {
+        @Override
+        public void handle(final HttpExchange exchange) throws IOException {
+            if (!"GET".equals(exchange.getRequestMethod())) {
+                sendError(exchange, 405, "Method not allowed");
+                return;
+            }
+
+            final var token = getAuthToken(exchange);
+            if (!authService.isAuthenticated(token)) {
+                sendError(exchange, 401, "Unauthorized");
+                return;
+            }
+
+            try {
+                final var query = exchange.getRequestURI().getQuery();
+                if (query == null || !query.startsWith("gameId=")) {
+                    sendError(exchange, 400, "Missing gameId parameter");
+                    return;
+                }
+                final var gameId = query.substring(7);
+
+                final var availableBids = gameService.getAvailableBids(gameId);
+                final var json = objectMapper.writeValueAsString(availableBids);
+                sendResponse(exchange, 200, json);
+            } catch (Exception e) {
+                sendError(exchange, 400, e.getMessage());
+            }
+        }
+    }
+
+    private class ListRulesHandler implements HttpHandler {
+        @Override
+        public void handle(final HttpExchange exchange) throws IOException {
+            if (!"GET".equals(exchange.getRequestMethod())) {
+                sendError(exchange, 405, "Method not allowed");
+                return;
+            }
+
+            try {
+                final var rules = gameService.getAvailableRules();
+                final var json = objectMapper.writeValueAsString(rules);
+                sendResponse(exchange, 200, json);
             } catch (Exception e) {
                 sendError(exchange, 400, e.getMessage());
             }

@@ -42,6 +42,14 @@ public class GameService {
         return rulesLoader.getAvailableRulesList();
     }
 
+    public List<Contract> getAvailableBids(final String gameId) {
+        final var gameState = getGame(gameId);
+        if (gameState == null) {
+            throw new IllegalArgumentException("Game not found");
+        }
+        return RulesValidator.getAvailableBids(gameState);
+    }
+
     public GameState joinGame(final String gameId, final String username) {
         final var gameState = activeGames.get(gameId);
         if (gameState == null) {
@@ -202,7 +210,8 @@ public class GameService {
             tricksWonMap,
             scoresMap,
             bulletsMap,
-            mountainsMap
+            mountainsMap,
+            gameState.getRules()
         );
     }
 
@@ -238,6 +247,9 @@ public class GameService {
         if (!player.equals(gameState.getCurrentPlayer())) {
             throw new IllegalStateException("Not your turn");
         }
+
+        // Validate bid according to rules
+        RulesValidator.validateBid(gameState, contract);
 
         gameState.placeBid(player, contract);
 

@@ -29,7 +29,8 @@ public record PlayerView(
     Map<String, Integer> tricksWon,
     Map<String, Integer> scores,
     Map<String, Integer> bullets,
-    Map<String, Integer> mountains
+    Map<String, Integer> mountains,
+    GameRules rules
 ) {
     public PlayerView {
         hand = hand != null ? new ArrayList<>(hand) : new ArrayList<>();

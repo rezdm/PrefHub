@@ -48,6 +48,12 @@
                         <label>ID игры:</label>
                         <input type="text" id="game-id" placeholder="Введите или создайте ID игры">
                     </div>
+                    <div class="form-group">
+                        <label>Правила игры:</label>
+                        <select id="rule-select" class="form-control">
+                            <option value="">Загрузка...</option>
+                        </select>
+                    </div>
                     <div class="button-group">
                         <button onclick="client.createGame()" class="btn btn-primary">Создать игру</button>
                         <button onclick="client.joinGame()" class="btn btn-primary">Присоединиться</button>
