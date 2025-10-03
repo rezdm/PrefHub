@@ -16,7 +16,7 @@ public class Trick implements java.io.Serializable {
     public void playCard(Player player, Card card) {
         if (cardsPlayed.isEmpty()) {
             leadPlayer = player;
-            leadSuit = card.getSuit();
+            leadSuit = card.suit();
         }
         cardsPlayed.put(player, card);
     }
@@ -55,17 +55,17 @@ public class Trick implements java.io.Serializable {
             }
 
             // Козырь бьет некозырную
-            final var currentIsTrump = trumpSuit != null && card.getSuit() == trumpSuit;
-            final var winningIsTrump = trumpSuit != null && winningCard.getSuit() == trumpSuit;
+            final var currentIsTrump = trumpSuit != null && card.suit() == trumpSuit;
+            final var winningIsTrump = trumpSuit != null && winningCard.suit() == trumpSuit;
 
             if (currentIsTrump && !winningIsTrump) {
                 winner = entry.getKey();
                 winningCard = card;
             } else if (!currentIsTrump && winningIsTrump) {
                 // winningCard остается
-            } else if (card.getSuit() == winningCard.getSuit()) {
+            } else if (card.suit() == winningCard.suit()) {
                 // Одной масти - сравниваем старшинство
-                if (card.getRank().getValue() > winningCard.getRank().getValue()) {
+                if (card.rank().getValue() > winningCard.rank().getValue()) {
                     winner = entry.getKey();
                     winningCard = card;
                 }
