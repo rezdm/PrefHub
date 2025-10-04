@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * Authentication controller using JAX-RS.
  */
-@Path("/api/auth")
+@Path("/auth")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class AuthController {

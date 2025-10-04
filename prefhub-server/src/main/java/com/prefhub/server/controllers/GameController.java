@@ -16,7 +16,7 @@ import java.util.List;
  * Game management controller using JAX-RS.
  * Handles game creation, joining, and state management.
  */
-@Path("/api/games")
+@Path("/games")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class GameController {

@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * Rules management controller using JAX-RS.
  */
-@Path("/api/rules")
+@Path("/rules")
 @Produces(MediaType.APPLICATION_JSON)
 public class RulesController {
     private final RulesLoader rulesLoader;

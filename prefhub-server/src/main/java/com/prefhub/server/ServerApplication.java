@@ -35,14 +35,41 @@ public class ServerApplication {
         config.register(RulesController.class);
         config.register(com.prefhub.server.web.auth.AuthenticationFilter.class);
 
-        // Register HK2 binder to bind Guice-managed service instances
+        // Register HK2 binder to bind Guice-managed instances
         config.register(new org.glassfish.hk2.utilities.binding.AbstractBinder() {
             @Override
             protected void configure() {
+                // Services
                 bind(injector.getInstance(com.prefhub.server.auth.AuthService.class)).to(com.prefhub.server.auth.AuthService.class);
                 bind(injector.getInstance(com.prefhub.server.game.GameService.class)).to(com.prefhub.server.game.GameService.class);
                 bind(injector.getInstance(com.prefhub.server.game.RulesLoader.class)).to(com.prefhub.server.game.RulesLoader.class);
+                // Filter
                 bind(injector.getInstance(com.prefhub.server.web.auth.AuthenticationFilter.class)).to(com.prefhub.server.web.auth.AuthenticationFilter.class);
+                // Controllers
+                bindFactory(new org.glassfish.hk2.api.Factory<AuthController>() {
+                    @Override
+                    public AuthController provide() {
+                        return injector.getInstance(AuthController.class);
+                    }
+                    @Override
+                    public void dispose(AuthController instance) {}
+                }).to(AuthController.class);
+                bindFactory(new org.glassfish.hk2.api.Factory<GameController>() {
+                    @Override
+                    public GameController provide() {
+                        return injector.getInstance(GameController.class);
+                    }
+                    @Override
+                    public void dispose(GameController instance) {}
+                }).to(GameController.class);
+                bindFactory(new org.glassfish.hk2.api.Factory<RulesController>() {
+                    @Override
+                    public RulesController provide() {
+                        return injector.getInstance(RulesController.class);
+                    }
+                    @Override
+                    public void dispose(RulesController instance) {}
+                }).to(RulesController.class);
             }
         });
 
