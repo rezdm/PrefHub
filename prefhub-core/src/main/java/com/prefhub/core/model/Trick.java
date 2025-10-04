@@ -7,10 +7,11 @@ import java.util.Map;
 public class Trick implements java.io.Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    private final Map<Player, Card> cardsPlayed;
+    private Map<Player, Card> cardsPlayed;
     private Player leadPlayer;
     private Suit leadSuit;
 
+    // Default constructor for Jackson
     public Trick() {
         this.cardsPlayed = new HashMap<>();
     }

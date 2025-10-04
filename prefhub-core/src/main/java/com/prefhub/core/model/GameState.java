@@ -13,25 +13,40 @@ import java.util.*;
 public class GameState implements java.io.Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    private final String gameId;
-    private final List<Player> players;
-    private final List<Card> widow; // прикуп (2 карты)
+    private String gameId;
+    private List<Player> players;
+    private List<Card> widow; // прикуп (2 карты)
     private GamePhase phase;
     private int dealerIndex;
     private int currentPlayerIndex;
     private GameRules rules; // правила игры
 
     // Торговля
-    private final Map<Player, Contract> bids;
+    private Map<Player, Contract> bids;
     private Player declarer; // игрок взявший взятку
     private Contract contract;
 
     // Разыгрывание
     private Trick currentTrick;
-    private final List<Trick> completedTricks;
-    private final Map<Player, Integer> tricksWon;
+    private List<Trick> completedTricks;
+    private Map<Player, Integer> tricksWon;
 
     private int roundNumber;
+
+    // Default constructor for Jackson
+    public GameState() {
+        this.gameId = "";
+        this.players = new ArrayList<>(3);
+        this.widow = new ArrayList<>(2);
+        this.phase = GamePhase.WAITING_FOR_PLAYERS;
+        this.bids = new HashMap<>();
+        this.completedTricks = new ArrayList<>();
+        this.tricksWon = new HashMap<>();
+        this.dealerIndex = 0;
+        this.currentPlayerIndex = 0;
+        this.roundNumber = 1;
+        this.rules = new GameRules();
+    }
 
     public GameState(String gameId) {
         this(gameId, null);

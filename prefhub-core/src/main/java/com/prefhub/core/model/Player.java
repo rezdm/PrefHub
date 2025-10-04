@@ -8,11 +8,20 @@ import java.util.Objects;
 public class Player implements java.io.Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    private final String username;
-    private final List<Card> hand;
+    private String username;
+    private List<Card> hand;
     private int score;
     private int bullet; // пуля
     private int mountain; // гора
+
+    // Default constructor for Jackson
+    public Player() {
+        this.username = "";
+        this.hand = new ArrayList<>();
+        this.score = 0;
+        this.bullet = 0;
+        this.mountain = 0;
+    }
 
     public Player(String username) {
         this.username = username;
