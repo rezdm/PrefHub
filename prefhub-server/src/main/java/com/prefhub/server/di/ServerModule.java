@@ -10,7 +10,12 @@ import com.prefhub.server.controllers.GameController;
 import com.prefhub.server.controllers.RulesController;
 import com.prefhub.server.game.GameService;
 import com.prefhub.server.game.RulesLoader;
-import com.prefhub.server.persistence.GamePersistence;
+import com.prefhub.server.repository.GameRepository;
+import com.prefhub.server.repository.SessionRepository;
+import com.prefhub.server.repository.UserRepository;
+import com.prefhub.server.repository.impl.FileGameRepository;
+import com.prefhub.server.repository.impl.FileSessionRepository;
+import com.prefhub.server.repository.impl.FileUserRepository;
 
 public class ServerModule extends AbstractModule {
     private final String storageDirectory;
@@ -33,6 +38,11 @@ public class ServerModule extends AbstractModule {
         bind(AuthService.class).in(Singleton.class);
         bind(GameService.class).in(Singleton.class);
         bind(RulesLoader.class).in(Singleton.class);
+
+        // Repositories - singletons
+        bind(UserRepository.class).to(FileUserRepository.class).in(Singleton.class);
+        bind(GameRepository.class).to(FileGameRepository.class).in(Singleton.class);
+        bind(SessionRepository.class).to(FileSessionRepository.class).in(Singleton.class);
     }
 
     @Provides
@@ -43,7 +53,19 @@ public class ServerModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public GamePersistence provideGamePersistence() {
-        return new GamePersistence(storageDirectory);
+    public FileUserRepository provideFileUserRepository() {
+        return new FileUserRepository(storageDirectory);
+    }
+
+    @Provides
+    @Singleton
+    public FileGameRepository provideFileGameRepository() {
+        return new FileGameRepository(storageDirectory);
+    }
+
+    @Provides
+    @Singleton
+    public FileSessionRepository provideFileSessionRepository() {
+        return new FileSessionRepository(storageDirectory);
     }
 }

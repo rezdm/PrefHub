@@ -1,40 +1,61 @@
 package com.prefhub.server.auth;
 
+import com.google.inject.Inject;
+import com.prefhub.server.repository.SessionRepository;
+import com.prefhub.server.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class AuthService {
-    private final Map<String, User> users = new ConcurrentHashMap<>();
-    private final Map<String, String> sessions = new ConcurrentHashMap<>(); // token -> username
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
+    private final UserRepository userRepository;
+    private final SessionRepository sessionRepository;
+
+    @Inject
+    public AuthService(final UserRepository userRepository, final SessionRepository sessionRepository) {
+        this.userRepository = userRepository;
+        this.sessionRepository = sessionRepository;
+        loadExistingData();
+    }
+
+    private void loadExistingData() {
+        final var users = userRepository.findAll();
+        final var sessions = sessionRepository.findAll();
+        logger.info("Loaded {} users and {} sessions from storage", users.size(), sessions.size());
+    }
 
     public synchronized void register(final String username, final String password) {
-        if (users.containsKey(username)) {
+        if (userRepository.exists(username)) {
             throw new IllegalArgumentException("User already exists");
         }
-        users.put(username, new User(username, User.hashPassword(password)));
+        final var user = new User(username, User.hashPassword(password));
+        userRepository.save(user);
+        logger.info("User registered: {}", username);
     }
 
     public String login(final String username, final String password) {
-        final var user = users.get(username);
-        if (user == null || !user.verifyPassword(password)) {
+        final var userOpt = userRepository.findByUsername(username);
+        if (userOpt.isEmpty() || !userOpt.get().verifyPassword(password)) {
             throw new IllegalArgumentException("Invalid username or password");
         }
         final var token = UUID.randomUUID().toString();
-        sessions.put(token, username);
+        sessionRepository.save(token, username);
+        logger.info("User logged in: {}", username);
         return token;
     }
 
     public void logout(final String token) {
-        sessions.remove(token);
+        sessionRepository.delete(token);
+        logger.info("User logged out");
     }
 
     public String validateToken(final String token) {
-        return sessions.get(token);
+        return sessionRepository.findUsernameByToken(token).orElse(null);
     }
 
     public boolean isAuthenticated(final String token) {
-        return sessions.containsKey(token);
+        return sessionRepository.exists(token);
     }
 }

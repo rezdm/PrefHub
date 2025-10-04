@@ -2,20 +2,32 @@ package com.prefhub.server.game;
 
 import com.prefhub.core.model.*;
 import com.google.inject.Inject;
-import com.prefhub.server.persistence.GamePersistence;
+import com.prefhub.server.repository.GameRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GameService {
+    private static final Logger logger = LoggerFactory.getLogger(GameService.class);
     private final Map<String, GameState> activeGames = new ConcurrentHashMap<>();
-    private final GamePersistence persistence;
+    private final GameRepository gameRepository;
     private final RulesLoader rulesLoader;
 
     @Inject
-    public GameService(final GamePersistence persistence, final RulesLoader rulesLoader) {
-        this.persistence = persistence;
+    public GameService(final GameRepository gameRepository, final RulesLoader rulesLoader) {
+        this.gameRepository = gameRepository;
         this.rulesLoader = rulesLoader;
+        loadExistingGames();
+    }
+
+    private void loadExistingGames() {
+        final var games = gameRepository.findAll();
+        for (final var game : games) {
+            activeGames.put(game.getGameId(), game);
+        }
+        logger.info("Loaded {} games from storage", games.size());
     }
 
     public GameState createGame(final String gameId) {
@@ -36,7 +48,7 @@ public class GameService {
 
         final var gameState = new GameState(gameId, rules);
         activeGames.put(gameId, gameState);
-        persistence.saveGame(gameState);
+        gameRepository.save(gameState);
         return gameState;
     }
 
@@ -68,7 +80,7 @@ public class GameService {
             startRound(gameState);
         }
 
-        persistence.saveGame(gameState);
+        gameRepository.save(gameState);
         return gameState;
     }
 
@@ -262,7 +274,7 @@ public class GameService {
             gameState.nextPlayer();
         }
 
-        persistence.saveGame(gameState);
+        gameRepository.save(gameState);
     }
 
     private boolean isBiddingComplete(final GameState gameState) {
@@ -344,7 +356,7 @@ public class GameService {
         gameState.setCurrentPlayerIndex(gameState.getPlayers().indexOf(declarer));
         gameState.setCurrentTrick(new Trick());
 
-        persistence.saveGame(gameState);
+        gameRepository.save(gameState);
     }
 
     public void playCard(final String gameId, final String username, final Card card) {
@@ -384,7 +396,7 @@ public class GameService {
             gameState.nextPlayer();
         }
 
-        persistence.saveGame(gameState);
+        gameRepository.save(gameState);
     }
 
     private void calculateScores(final GameState gameState) {
@@ -428,7 +440,7 @@ public class GameService {
 
         gameState.nextRound();
         startRound(gameState);
-        persistence.saveGame(gameState);
+        gameRepository.save(gameState);
     }
 
     private Player findPlayer(final GameState gameState, final String username) {
