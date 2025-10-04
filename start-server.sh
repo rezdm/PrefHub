@@ -33,6 +33,11 @@ for jar in "$DEPS_DIR"/*.jar; do
     fi
 done
 
+# Copy rules files to game-data/rules
+echo "Copying rules files..."
+mkdir -p ./game-data/rules
+cp -f prefhub-server/src/main/resources/rules/*.json ./game-data/rules/
+
 echo "Starting PrefHub server..."
 java -Djava.net.preferIPv4Stack=true \
     -cp "$CLASSPATH" \

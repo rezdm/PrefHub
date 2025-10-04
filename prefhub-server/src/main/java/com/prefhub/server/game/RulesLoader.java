@@ -1,55 +1,37 @@
 package com.prefhub.server.game;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.prefhub.core.model.GameRules;
 import com.google.inject.Inject;
+import com.prefhub.server.repository.RulesRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Загрузчик конфигураций правил игры из classpath
+ * Загрузчик конфигураций правил игры из persistence layer
  */
 public class RulesLoader {
-    private static final String RULES_PATH = "/rules/";
-    private static final String[] RULE_FILES = {
-        "sochinka.json",
-        "leningradka.json",
-        "stalingradka.json"
-    };
-
-    private final ObjectMapper objectMapper;
+    private static final Logger logger = LoggerFactory.getLogger(RulesLoader.class);
+    private final RulesRepository rulesRepository;
     private final Map<String, GameRules> availableRules;
 
     @Inject
-    public RulesLoader() {
-        this.objectMapper = new ObjectMapper();
+    public RulesLoader(final RulesRepository rulesRepository) {
+        this.rulesRepository = rulesRepository;
         this.availableRules = new HashMap<>();
         loadAllRules();
     }
 
     /**
-     * Загружает все правила из classpath resources
+     * Загружает все правила из persistence layer
      */
     private void loadAllRules() {
-        for (final var fileName : RULE_FILES) {
-            final var resourcePath = RULES_PATH + fileName;
-            try (final InputStream is = getClass().getResourceAsStream(resourcePath)) {
-                if (is == null) {
-                    System.err.println("Rules file not found in classpath: " + resourcePath);
-                    continue;
-                }
-
-                final var rules = objectMapper.readValue(is, GameRules.class);
-                final var ruleId = fileName.replace(".json", "");
-                availableRules.put(ruleId, rules);
-                System.out.println("Loaded rules: " + rules.getName() + " (ID: " + ruleId + ")");
-            } catch (IOException e) {
-                System.err.println("Failed to load rules from: " + resourcePath);
-                e.printStackTrace();
-            }
+        final var rules = rulesRepository.findAll();
+        for (final var entry : rules) {
+            availableRules.put(entry.ruleId(), entry.rules());
+            logger.info("Loaded rules: {} (ID: {})", entry.rules().getName(), entry.ruleId());
         }
     }
 

@@ -11,9 +11,11 @@ import com.prefhub.server.controllers.RulesController;
 import com.prefhub.server.game.GameService;
 import com.prefhub.server.game.RulesLoader;
 import com.prefhub.server.repository.GameRepository;
+import com.prefhub.server.repository.RulesRepository;
 import com.prefhub.server.repository.SessionRepository;
 import com.prefhub.server.repository.UserRepository;
 import com.prefhub.server.repository.impl.FileGameRepository;
+import com.prefhub.server.repository.impl.FileRulesRepository;
 import com.prefhub.server.repository.impl.FileSessionRepository;
 import com.prefhub.server.repository.impl.FileUserRepository;
 
@@ -43,6 +45,7 @@ public class ServerModule extends AbstractModule {
         bind(UserRepository.class).to(FileUserRepository.class).in(Singleton.class);
         bind(GameRepository.class).to(FileGameRepository.class).in(Singleton.class);
         bind(SessionRepository.class).to(FileSessionRepository.class).in(Singleton.class);
+        bind(RulesRepository.class).to(FileRulesRepository.class).in(Singleton.class);
     }
 
     @Provides
@@ -67,5 +70,11 @@ public class ServerModule extends AbstractModule {
     @Singleton
     public FileSessionRepository provideFileSessionRepository() {
         return new FileSessionRepository(storageDirectory);
+    }
+
+    @Provides
+    @Singleton
+    public FileRulesRepository provideFileRulesRepository() {
+        return new FileRulesRepository(storageDirectory);
     }
 }
