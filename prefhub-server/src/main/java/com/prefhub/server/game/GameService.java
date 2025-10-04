@@ -1,6 +1,7 @@
 package com.prefhub.server.game;
 
 import com.prefhub.core.model.*;
+import com.google.inject.Inject;
 import com.prefhub.server.persistence.GamePersistence;
 
 import java.util.*;
@@ -11,6 +12,7 @@ public class GameService {
     private final GamePersistence persistence;
     private final RulesLoader rulesLoader;
 
+    @Inject
     public GameService(final GamePersistence persistence, final RulesLoader rulesLoader) {
         this.persistence = persistence;
         this.rulesLoader = rulesLoader;

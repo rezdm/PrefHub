@@ -2,6 +2,7 @@ package com.prefhub.server.game;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.prefhub.core.model.GameRules;
+import com.google.inject.Inject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +23,7 @@ public class RulesLoader {
     private final ObjectMapper objectMapper;
     private final Map<String, GameRules> availableRules;
 
+    @Inject
     public RulesLoader() {
         this.objectMapper = new ObjectMapper();
         this.availableRules = new HashMap<>();
