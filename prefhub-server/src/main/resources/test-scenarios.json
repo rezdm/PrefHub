@@ -1,0 +1,228 @@
+{
+  "tests": {
+    "test0": {
+      "description": "test sochinka 0",
+      "game": "game0",
+      "deck": {
+        "playerWest": [
+          "QUEEN_HEARTS",
+          "KING_DIAMONDS",
+          "ACE_DIAMONDS",
+          "SEVEN_SPADES",
+          "EIGHT_SPADES",
+          "NINE_SPADES",
+          "TEN_SPADES",
+          "JACK_SPADES",
+          "QUEEN_SPADES",
+          "KING_SPADES"
+        ],
+        "playerEast": [
+          "SEVEN_HEARTS",
+          "ACE_CLUBS",
+          "SEVEN_CLUBS",
+          "EIGHT_CLUBS",
+          "NINE_CLUBS",
+          "TEN_CLUBS",
+          "JACK_CLUBS",
+          "QUEEN_CLUBS",
+          "KING_CLUBS",
+          "ACE_SPADES"
+        ],
+        "playerSouth": [
+          "JACK_DIAMONDS",
+          "QUEEN_DIAMONDS",
+          "SEVEN_DIAMONDS",
+          "EIGHT_DIAMONDS",
+          "NINE_DIAMONDS",
+          "TEN_DIAMONDS",
+          "ACE_HEARTS",
+          "EIGHT_HEARTS",
+          "NINE_HEARTS",
+          "KING_HEARTS"
+        ],
+        "prikup": [
+          "JACK_HEARTS",
+          "TEN_HEARTS"
+        ]
+      },
+      "scenarios": [
+        {
+          "name": "scenarioA_hearts_contract_success",
+          "description": "South declares 6 Hearts, takes prikup, plays and wins all tricks",
+          "moves": [
+            {
+              "action": "bid",
+              "player": "playerSouth",
+              "contract": "SIX_HEARTS"
+            },
+            {
+              "action": "bid",
+              "player": "playerWest",
+              "contract": "PASS"
+            },
+            {
+              "action": "bid",
+              "player": "playerEast",
+              "contract": "PASS"
+            },
+            {
+              "action": "takePrikup",
+              "player": "playerSouth",
+              "discard": ["SEVEN_DIAMONDS", "EIGHT_DIAMONDS"]
+            },
+            {
+              "action": "playCard",
+              "player": "playerSouth",
+              "card": "ACE_HEARTS"
+            },
+            {
+              "action": "playCard",
+              "player": "playerWest",
+              "card": "QUEEN_HEARTS"
+            },
+            {
+              "action": "playCard",
+              "player": "playerEast",
+              "card": "SEVEN_HEARTS"
+            },
+            {
+              "action": "playCard",
+              "player": "playerSouth",
+              "card": "KING_HEARTS"
+            },
+            {
+              "action": "playCard",
+              "player": "playerWest",
+              "card": "SEVEN_SPADES"
+            },
+            {
+              "action": "playCard",
+              "player": "playerEast",
+              "card": "ACE_CLUBS"
+            },
+            {
+              "action": "playCard",
+              "player": "playerSouth",
+              "card": "JACK_HEARTS"
+            },
+            {
+              "action": "playCard",
+              "player": "playerWest",
+              "card": "EIGHT_SPADES"
+            },
+            {
+              "action": "playCard",
+              "player": "playerEast",
+              "card": "SEVEN_CLUBS"
+            },
+            {
+              "action": "playCard",
+              "player": "playerSouth",
+              "card": "TEN_HEARTS"
+            },
+            {
+              "action": "playCard",
+              "player": "playerWest",
+              "card": "NINE_SPADES"
+            },
+            {
+              "action": "playCard",
+              "player": "playerEast",
+              "card": "EIGHT_CLUBS"
+            },
+            {
+              "action": "playCard",
+              "player": "playerSouth",
+              "card": "NINE_HEARTS"
+            },
+            {
+              "action": "playCard",
+              "player": "playerWest",
+              "card": "TEN_SPADES"
+            },
+            {
+              "action": "playCard",
+              "player": "playerEast",
+              "card": "NINE_CLUBS"
+            },
+            {
+              "action": "playCard",
+              "player": "playerSouth",
+              "card": "EIGHT_HEARTS"
+            },
+            {
+              "action": "playCard",
+              "player": "playerWest",
+              "card": "JACK_SPADES"
+            },
+            {
+              "action": "playCard",
+              "player": "playerEast",
+              "card": "TEN_CLUBS"
+            },
+            {
+              "action": "playCard",
+              "player": "playerSouth",
+              "card": "JACK_DIAMONDS"
+            },
+            {
+              "action": "playCard",
+              "player": "playerWest",
+              "card": "KING_DIAMONDS"
+            },
+            {
+              "action": "playCard",
+              "player": "playerEast",
+              "card": "JACK_CLUBS"
+            },
+            {
+              "action": "playCard",
+              "player": "playerWest",
+              "card": "ACE_DIAMONDS"
+            },
+            {
+              "action": "playCard",
+              "player": "playerEast",
+              "card": "QUEEN_CLUBS"
+            },
+            {
+              "action": "playCard",
+              "player": "playerSouth",
+              "card": "QUEEN_DIAMONDS"
+            },
+            {
+              "action": "playCard",
+              "player": "playerWest",
+              "card": "QUEEN_SPADES"
+            },
+            {
+              "action": "playCard",
+              "player": "playerEast",
+              "card": "KING_CLUBS"
+            },
+            {
+              "action": "playCard",
+              "player": "playerSouth",
+              "card": "NINE_DIAMONDS"
+            },
+            {
+              "action": "playCard",
+              "player": "playerWest",
+              "card": "KING_SPADES"
+            },
+            {
+              "action": "playCard",
+              "player": "playerEast",
+              "card": "ACE_SPADES"
+            },
+            {
+              "action": "playCard",
+              "player": "playerSouth",
+              "card": "TEN_DIAMONDS"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

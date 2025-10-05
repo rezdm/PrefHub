@@ -7,7 +7,7 @@ import java.util.Map;
 public class Trick implements java.io.Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    private Map<Player, Card> cardsPlayed;
+    private final Map<Player, Card> cardsPlayed;
     private Player leadPlayer;
     private Suit leadSuit;
 

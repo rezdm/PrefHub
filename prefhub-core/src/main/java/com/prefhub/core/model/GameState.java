@@ -13,23 +13,23 @@ import java.util.*;
 public class GameState implements java.io.Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    private String gameId;
-    private List<Player> players;
-    private List<Card> widow; // прикуп (2 карты)
+    private final String gameId;
+    private final List<Player> players;
+    private final List<Card> widow; // прикуп (2 карты)
     private GamePhase phase;
     private int dealerIndex;
     private int currentPlayerIndex;
     private GameRules rules; // правила игры
 
     // Торговля
-    private Map<Player, Contract> bids;
+    private final Map<Player, Contract> bids;
     private Player declarer; // игрок взявший взятку
     private Contract contract;
 
     // Разыгрывание
     private Trick currentTrick;
-    private List<Trick> completedTricks;
-    private Map<Player, Integer> tricksWon;
+    private final List<Trick> completedTricks;
+    private final Map<Player, Integer> tricksWon;
 
     private int roundNumber;
 

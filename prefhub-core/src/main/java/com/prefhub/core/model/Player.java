@@ -8,7 +8,7 @@ import java.util.Objects;
 public class Player implements java.io.Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    private String username;
+    private final String username;
     private List<Card> hand;
     private int score;
     private int bullet; // пуля
@@ -37,6 +37,10 @@ public class Player implements java.io.Serializable {
 
     public List<Card> getHand() {
         return new ArrayList<>(hand);
+    }
+
+    public void setHand(List<Card> hand) {
+        this.hand = new ArrayList<>(hand);
     }
 
     public void addCard(Card card) {
