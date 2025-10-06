@@ -15,7 +15,6 @@
     <modules>
         <module>prefhub-core</module>
         <module>prefhub-server</module>
-        <module>prefhub-client</module>
     </modules>
 
     <properties>
