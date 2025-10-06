@@ -151,3 +151,32 @@ export const getSuitColor = (suit: Suit): string => {
 export const cardToString = (card: Card): string => {
   return `${getRankSymbol(card.rank)}${getSuitSymbol(card.suit)}`;
 };
+
+// Sort cards by suit order (Spades, Clubs, Diamonds, Hearts) then by rank within each suit
+export const sortCards = (cards: Card[]): Card[] => {
+  const suitOrder: Record<Suit, number> = {
+    SPADES: 0,
+    CLUBS: 1,
+    DIAMONDS: 2,
+    HEARTS: 3
+  };
+
+  const rankOrder: Record<Rank, number> = {
+    SEVEN: 0,
+    EIGHT: 1,
+    NINE: 2,
+    TEN: 3,
+    JACK: 4,
+    QUEEN: 5,
+    KING: 6,
+    ACE: 7
+  };
+
+  return [...cards].sort((a, b) => {
+    const suitDiff = suitOrder[a.suit] - suitOrder[b.suit];
+    if (suitDiff !== 0) {
+      return suitDiff;
+    }
+    return rankOrder[a.rank] - rankOrder[b.rank];
+  });
+};
