@@ -1,0 +1,373 @@
+.game-table-container {
+  min-height: 100vh;
+  background-color: var(--background-color);
+  display: flex;
+  flex-direction: column;
+}
+
+.loading-game {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-size: 1.5rem;
+  color: var(--text-color);
+}
+
+.game-header {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.game-info-bar {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+}
+
+.game-id {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.phase-indicator {
+  font-weight: 500;
+}
+
+.leave-button {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.leave-button:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.error-banner {
+  background-color: rgba(244, 67, 54, 0.1);
+  border: 1px solid var(--error-color);
+  color: var(--error-color);
+  padding: 1rem;
+  text-align: center;
+  margin: 1rem 2rem;
+  border-radius: 8px;
+}
+
+.game-table {
+  flex: 1;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem;
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  grid-template-rows: 1fr auto;
+  gap: 2rem;
+  grid-template-areas:
+    "players sidebar"
+    "hand sidebar";
+}
+
+.players-area {
+  grid-area: players;
+  background-color: var(--primary-color);
+  border-radius: 16px;
+  padding: 2rem;
+  position: relative;
+  min-height: 500px;
+  display: grid;
+  grid-template-areas:
+    ". west ."
+    "east trick ."
+    ". south .";
+  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-rows: auto 1fr auto;
+  gap: 1rem;
+}
+
+.player-position {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.player-position.west {
+  grid-area: west;
+  justify-content: flex-start;
+}
+
+.player-position.east {
+  grid-area: east;
+  justify-content: flex-end;
+}
+
+.player-position.south {
+  grid-area: south;
+  justify-content: center;
+}
+
+.player-card {
+  background-color: var(--card-background);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1rem;
+  min-width: 200px;
+  text-align: center;
+}
+
+.player-card.current-player {
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 12px rgba(151, 184, 133, 0.4);
+}
+
+.player-name {
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.player-status {
+  min-height: 24px;
+  margin-bottom: 0.5rem;
+}
+
+.turn-indicator {
+  display: inline-block;
+  background-color: var(--border-color);
+  color: var(--text-color);
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+}
+
+.turn-indicator.active {
+  background-color: var(--secondary-color);
+  color: white;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.player-stats {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+}
+
+.trick-area {
+  grid-area: trick;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 2rem;
+  min-height: 300px;
+}
+
+.trick-label {
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.trick-cards {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.trick-card-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.trick-player-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+}
+
+.trick-placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+}
+
+.hand-area {
+  grid-area: hand;
+  background-color: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.hand-label {
+  color: var(--secondary-color);
+  font-weight: 600;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.hand-cards {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.empty-hand {
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+  padding: 2rem;
+  font-style: italic;
+}
+
+.card {
+  width: 70px;
+  height: 100px;
+  background-color: white;
+  border: 2px solid #333;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  cursor: default;
+  position: relative;
+}
+
+.card.playable {
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.card.playable:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+  border-color: var(--secondary-color);
+}
+
+.card.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.card.red {
+  color: #d32f2f;
+}
+
+.card.black {
+  color: #000;
+}
+
+.card-rank {
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.card-suit {
+  font-size: 2rem;
+}
+
+.game-sidebar {
+  grid-area: sidebar;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sidebar-section {
+  background-color: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.sidebar-section h3 {
+  margin: 0 0 1rem 0;
+  color: var(--secondary-color);
+  font-size: 1.1rem;
+}
+
+.sidebar-section p {
+  margin: 0.5rem 0;
+  color: var(--text-color);
+}
+
+.sidebar-section strong {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.score-line {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-color);
+}
+
+.score-line:last-child {
+  border-bottom: none;
+}
+
+.action-description {
+  color: rgba(255, 255, 255, 0.8);
+  font-style: italic;
+}
+
+@media (max-width: 1024px) {
+  .game-table {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "players"
+      "sidebar"
+      "hand";
+  }
+
+  .game-sidebar {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    flex-direction: row;
+  }
+}
+
+@media (max-width: 768px) {
+  .players-area {
+    grid-template-areas:
+      "west"
+      "trick"
+      "east"
+      "south";
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto;
+  }
+
+  .player-position {
+    justify-content: center !important;
+  }
+
+  .card {
+    width: 60px;
+    height: 85px;
+  }
+
+  .card-rank {
+    font-size: 1.2rem;
+  }
+
+  .card-suit {
+    font-size: 1.5rem;
+  }
+}
