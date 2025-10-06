@@ -86,7 +86,8 @@ public class ServerApplication {
     public void start() {
         httpServer.start();
         logger.info("Server started");
-        logger.info("Web interface available at http://localhost:{}/static/", httpServer.getAddress().getPort());
+        logger.info("Web interface (v0) available at http://localhost:{}/", httpServer.getAddress().getPort());
+        logger.info("Web interface (v0) also available at http://localhost:{}/web-v0/", httpServer.getAddress().getPort());
     }
 
     public void stop() {
@@ -98,26 +99,45 @@ public class ServerApplication {
     // Static file handler
     private static class StaticFileHandler implements com.sun.net.httpserver.HttpHandler {
         private static final Logger logger = LoggerFactory.getLogger(StaticFileHandler.class);
+        private static final String DEFAULT_WEB_VERSION = "web-v0";
 
         @Override
         public void handle(com.sun.net.httpserver.HttpExchange exchange) throws IOException {
             String path = exchange.getRequestURI().getPath();
 
-            // Default to index.html for root
+            // Determine which web version to serve
+            String resourcePath;
+
             if (path.isEmpty() || path.equals("/")) {
-                path = "/index.html";
+                // Root path - serve default version's index.html
+                resourcePath = "/static/" + DEFAULT_WEB_VERSION + "/index.html";
+            } else if (path.startsWith("/web-v")) {
+                // Explicit version request (e.g., /web-v0/index.html or /web-v1/style.css)
+                // Extract version and file path
+                final int secondSlash = path.indexOf('/', 1);
+                if (secondSlash == -1) {
+                    // Path is just /web-v0 or /web-v1 - serve index.html
+                    resourcePath = "/static" + path + "/index.html";
+                } else {
+                    // Path includes file (e.g., /web-v0/style.css)
+                    resourcePath = "/static" + path;
+                }
+            } else {
+                // Other paths - serve from default version
+                resourcePath = "/static/" + DEFAULT_WEB_VERSION + path;
             }
 
-            // Try to serve from /static resources
-            try (final var is = getClass().getResourceAsStream("/static" + path)) {
+            // Try to serve the resource
+            try (final var is = getClass().getResourceAsStream(resourcePath)) {
                 if (is == null) {
+                    logger.debug("Resource not found: {}", resourcePath);
                     exchange.sendResponseHeaders(404, 0);
                     exchange.getResponseBody().close();
                     return;
                 }
 
                 final byte[] bytes = is.readAllBytes();
-                final String contentType = getContentType(path);
+                final String contentType = getContentType(resourcePath);
                 exchange.getResponseHeaders().set("Content-Type", contentType);
                 exchange.sendResponseHeaders(200, bytes.length);
                 try (final var os = exchange.getResponseBody()) {
