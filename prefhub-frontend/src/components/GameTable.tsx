@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useGameStore } from '../store/gameStore';
 import type { Card, Contract } from '../types';
-import { cardToString, getSuitColor, getSuitSymbol, getRankSymbol, sortCards } from '../types';
+import { cardToString, getSuitColor, getSuitSymbol, getRankSymbol, sortCards, formatPresence, isPlayerOnline } from '../types';
 import './GameTable.css';
 
 const GameTable = () => {
@@ -251,7 +251,14 @@ const GameTable = () => {
           {gameState.otherPlayers.length > 0 && (
             <div className="player-position west">
               <div className="player-card">
-                <div className="player-name">{gameState.otherPlayers[0]}</div>
+                <div className="player-name">
+                  {gameState.otherPlayers[0]}
+                  {gameState.lastSeenSeconds[gameState.otherPlayers[0]] !== undefined && (
+                    <span className={`presence-indicator ${isPlayerOnline(gameState.lastSeenSeconds[gameState.otherPlayers[0]]) ? 'online' : 'offline'}`}>
+                      {formatPresence(gameState.lastSeenSeconds[gameState.otherPlayers[0]])}
+                    </span>
+                  )}
+                </div>
                 <div className="player-status">
                   {gameState.currentPlayerUsername === gameState.otherPlayers[0] && (
                     <span className="turn-indicator">⏱ Turn</span>
@@ -268,7 +275,14 @@ const GameTable = () => {
           {gameState.otherPlayers.length > 1 && (
             <div className="player-position east">
               <div className="player-card">
-                <div className="player-name">{gameState.otherPlayers[1]}</div>
+                <div className="player-name">
+                  {gameState.otherPlayers[1]}
+                  {gameState.lastSeenSeconds[gameState.otherPlayers[1]] !== undefined && (
+                    <span className={`presence-indicator ${isPlayerOnline(gameState.lastSeenSeconds[gameState.otherPlayers[1]]) ? 'online' : 'offline'}`}>
+                      {formatPresence(gameState.lastSeenSeconds[gameState.otherPlayers[1]])}
+                    </span>
+                  )}
+                </div>
                 <div className="player-status">
                   {gameState.currentPlayerUsername === gameState.otherPlayers[1] && (
                     <span className="turn-indicator">⏱ Turn</span>
@@ -305,7 +319,14 @@ const GameTable = () => {
           {/* South player (current user) */}
           <div className="player-position south">
             <div className="player-card current-player">
-              <div className="player-name">{username} (You)</div>
+              <div className="player-name">
+                {username} (You)
+                {gameState.lastSeenSeconds[username || ''] !== undefined && (
+                  <span className="presence-indicator online">
+                    {formatPresence(gameState.lastSeenSeconds[username || ''])}
+                  </span>
+                )}
+              </div>
               <div className="player-status">
                 {gameState.isYourTurn && (
                   <span className="turn-indicator active">⏱ Your Turn</span>

@@ -68,6 +68,9 @@ const Lobby = () => {
           }
         }
       }, 1000);
+    } else {
+      // Check if user has an active game (reconnection scenario)
+      checkForActiveGame();
     }
 
     // Refresh game list every 5 seconds
@@ -75,6 +78,21 @@ const Lobby = () => {
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const checkForActiveGame = async () => {
+    try {
+      const response = await apiClient.getActiveGame();
+      if (response.gameId) {
+        console.log('[Lobby] Found active game:', response.gameId);
+        // Ask user if they want to rejoin
+        if (window.confirm(`You have an active game (${response.gameId}). Would you like to rejoin?`)) {
+          await joinGame(response.gameId);
+        }
+      }
+    } catch (err) {
+      console.error('[Lobby] Failed to check for active game:', err);
+    }
+  };
 
   const handleCreateGame = async (e: React.FormEvent) => {
     e.preventDefault();

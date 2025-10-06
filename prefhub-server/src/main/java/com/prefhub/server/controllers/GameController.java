@@ -57,6 +57,14 @@ public class GameController {
         return gameService.getPlayerView(gameId, username);
     }
 
+    @GET
+    @Path("/active")
+    public ActiveGameResponse getActiveGame(@Context ContainerRequestContext requestContext) {
+        final String username = (String) requestContext.getProperty("username");
+        final String gameId = gameService.findActiveGameForPlayer(username);
+        return new ActiveGameResponse(gameId);
+    }
+
     @POST
     @Path("/bid")
     public PlayerView placeBid(BidRequest request, @Context ContainerRequestContext requestContext) {
@@ -95,11 +103,12 @@ public class GameController {
         return gameService.getPlayerView(request.gameId(), username);
     }
 
-    // Request DTOs
+    // Request/Response DTOs
     public record CreateGameRequest(String gameId, String ruleId) {}
     public record JoinGameRequest(String gameId) {}
     public record BidRequest(String gameId, String contract) {}
     public record ExchangeRequest(String gameId, List<Card> cards) {}
     public record PlayCardRequest(String gameId, Card card) {}
     public record NextRoundRequest(String gameId) {}
+    public record ActiveGameResponse(String gameId) {}
 }

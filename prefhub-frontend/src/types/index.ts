@@ -59,6 +59,7 @@ export interface PlayerView {
   scores: Record<string, number>;
   bullets: Record<string, number>;
   mountains: Record<string, number>;
+  lastSeenSeconds: Record<string, number>; // seconds since last ping for each player
   rules: GameRules;
 }
 
@@ -150,6 +151,25 @@ export const getSuitColor = (suit: Suit): string => {
 
 export const cardToString = (card: Card): string => {
   return `${getRankSymbol(card.rank)}${getSuitSymbol(card.suit)}`;
+};
+
+// Format player presence status
+export const formatPresence = (secondsAgo: number): string => {
+  if (secondsAgo < 5) {
+    return 'онлайн';
+  } else if (secondsAgo < 30) {
+    return `${secondsAgo}с назад`;
+  } else if (secondsAgo < 60) {
+    return 'был недавно';
+  } else {
+    const minutesAgo = Math.floor(secondsAgo / 60);
+    return `${minutesAgo}м назад`;
+  }
+};
+
+// Check if player is considered online (last seen < 10 seconds ago)
+export const isPlayerOnline = (secondsAgo: number): boolean => {
+  return secondsAgo < 10;
 };
 
 // Sort cards by suit order (Spades, Clubs, Diamonds, Hearts) then by rank within each suit

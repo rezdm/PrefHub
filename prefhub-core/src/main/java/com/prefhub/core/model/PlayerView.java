@@ -30,6 +30,7 @@ public record PlayerView(
     Map<String, Integer> scores,
     Map<String, Integer> bullets,
     Map<String, Integer> mountains,
+    Map<String, Long> lastSeenSeconds, // seconds since last ping for each player
     GameRules rules
 ) {
     public PlayerView {

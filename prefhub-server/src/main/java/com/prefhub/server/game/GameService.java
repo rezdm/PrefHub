@@ -69,6 +69,19 @@ public class GameService {
         if (gameState == null) {
             throw new IllegalArgumentException("Game not found: " + gameId);
         }
+
+        // Check if player is already in the game (reconnection scenario)
+        final var existingPlayer = gameState.getPlayers().stream()
+                .filter(p -> p.getUsername().equals(username))
+                .findFirst();
+
+        if (existingPlayer.isPresent()) {
+            // Player is reconnecting - just return the game state
+            logger.info("Player {} is reconnecting to game {}", username, gameId);
+            return gameState;
+        }
+
+        // New player joining
         if (gameState.isFull()) {
             throw new IllegalStateException("Game is full");
         }
@@ -92,6 +105,20 @@ public class GameService {
         return new ArrayList<>(activeGames.values());
     }
 
+    public String findActiveGameForPlayer(final String username) {
+        // Find the first non-completed game where the player is participating
+        for (final var game : activeGames.values()) {
+            if (game.getPhase() != GamePhase.GAME_COMPLETE) {
+                final boolean isPlayerInGame = game.getPlayers().stream()
+                        .anyMatch(p -> p.getUsername().equals(username));
+                if (isPlayerInGame) {
+                    return game.getGameId();
+                }
+            }
+        }
+        return null;
+    }
+
     public PlayerView getPlayerView(final String gameId, final String username) {
         final var gameState = getGame(gameId);
         if (gameState == null) {
@@ -99,6 +126,9 @@ public class GameService {
         }
 
         final var player = findPlayer(gameState, username);
+
+        // Update last seen timestamp for this player
+        gameState.updateLastSeen(player);
         final var currentPlayer = !gameState.getPlayers().isEmpty() ? gameState.getCurrentPlayer() : null;
         final var isYourTurn = currentPlayer != null && currentPlayer.equals(player);
 
@@ -203,6 +233,14 @@ public class GameService {
             }
         }
 
+        // Calculate last seen seconds for all players
+        final var now = System.currentTimeMillis();
+        final var lastSeenSecondsMap = new HashMap<String, Long>();
+        for (final var entry : gameState.getLastSeen().entrySet()) {
+            final var secondsAgo = (now - entry.getValue()) / 1000;
+            lastSeenSecondsMap.put(entry.getKey().getUsername(), secondsAgo);
+        }
+
         return new PlayerView(
             gameState.getGameId(),
             username,
@@ -225,6 +263,7 @@ public class GameService {
             scoresMap,
             bulletsMap,
             mountainsMap,
+            lastSeenSecondsMap,
             gameState.getRules()
         );
     }

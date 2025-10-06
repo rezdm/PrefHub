@@ -148,6 +148,11 @@ class ApiClient {
     const response = await this.client.post<PlayerView>('/games/next-round', { gameId });
     return response.data;
   }
+
+  async getActiveGame(): Promise<{ gameId: string | null }> {
+    const response = await this.client.get<{ gameId: string | null }>('/games/active');
+    return response.data;
+  }
 }
 
 // Export singleton instance

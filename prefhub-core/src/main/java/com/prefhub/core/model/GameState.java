@@ -31,6 +31,9 @@ public class GameState implements java.io.Serializable {
     private final List<Trick> completedTricks;
     private final Map<Player, Integer> tricksWon;
 
+    // Player presence tracking (last seen timestamp)
+    private final Map<Player, Long> lastSeen;
+
     private int roundNumber;
 
     // Default constructor for Jackson
@@ -42,6 +45,7 @@ public class GameState implements java.io.Serializable {
         this.bids = new HashMap<>();
         this.completedTricks = new ArrayList<>();
         this.tricksWon = new HashMap<>();
+        this.lastSeen = new HashMap<>();
         this.dealerIndex = 0;
         this.currentPlayerIndex = 0;
         this.roundNumber = 1;
@@ -60,6 +64,7 @@ public class GameState implements java.io.Serializable {
         this.bids = new HashMap<>();
         this.completedTricks = new ArrayList<>();
         this.tricksWon = new HashMap<>();
+        this.lastSeen = new HashMap<>();
         this.dealerIndex = 0;
         this.currentPlayerIndex = 0;
         this.roundNumber = 1;
@@ -80,6 +85,15 @@ public class GameState implements java.io.Serializable {
         }
         players.add(player);
         tricksWon.put(player, 0);
+        updateLastSeen(player);
+    }
+
+    public void updateLastSeen(Player player) {
+        lastSeen.put(player, System.currentTimeMillis());
+    }
+
+    public Map<Player, Long> getLastSeen() {
+        return new HashMap<>(lastSeen);
     }
 
     public boolean isFull() {
