@@ -1,7 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useGameStore } from '../store/gameStore';
 import type { Card, Contract } from '../types';
-import { cardToString, getSuitColor, getSuitSymbol, getRankSymbol, sortCards, formatPresence, isPlayerOnline } from '../types';
+import { getSuitSymbol, sortCards } from '../types';
+import PlayerCard from './PlayerCard';
+import PlayingCard from './PlayingCard';
+import BiddingPanel from './BiddingPanel';
+import WidowExchangePanel from './WidowExchangePanel';
+import RoundCompletePanel from './RoundCompletePanel';
 import './GameTable.css';
 
 const GameTable = () => {
@@ -18,7 +23,6 @@ const GameTable = () => {
     error
   } = useGameStore();
 
-  const [selectedWidowCards, setSelectedWidowCards] = useState<Card[]>([]);
 
   useEffect(() => {
     // Refresh game state every 2 seconds
@@ -62,25 +66,10 @@ const GameTable = () => {
     }
   };
 
-  const handleWidowCardClick = (card: Card) => {
-    setSelectedWidowCards(prev => {
-      const isSelected = prev.some(c => cardToString(c) === cardToString(card));
-      if (isSelected) {
-        return prev.filter(c => cardToString(c) !== cardToString(card));
-      } else {
-        if (prev.length < 2) {
-          return [...prev, card];
-        }
-        return prev;
-      }
-    });
-  };
-
-  const handleExchangeWidow = async () => {
-    if (selectedWidowCards.length !== 2 || loading) return;
+  const handleExchangeWidow = async (cardsToDiscard: Card[]) => {
+    if (loading) return;
     try {
-      await exchangeWidow(selectedWidowCards);
-      setSelectedWidowCards([]);
+      await exchangeWidow(cardsToDiscard);
     } catch (err) {
       console.error('Failed to exchange widow:', err);
     }
@@ -106,20 +95,6 @@ const GameTable = () => {
     return phaseMap[gameState.phase] || gameState.phase;
   };
 
-  const renderCard = (card: Card, isPlayable: boolean = false) => {
-    const color = getSuitColor(card.suit);
-    return (
-      <div
-        key={cardToString(card)}
-        className={`card ${color} ${isPlayable ? 'playable' : ''} ${loading ? 'disabled' : ''}`}
-        data-suit-group={card.suit}
-        onClick={() => isPlayable && handleCardClick(card)}
-      >
-        <div className="card-rank">{getRankSymbol(card.rank)}</div>
-        <div className="card-suit">{getSuitSymbol(card.suit)}</div>
-      </div>
-    );
-  };
 
   return (
     <div className="game-table-container">
@@ -141,157 +116,53 @@ const GameTable = () => {
 
       {/* Bidding Phase UI */}
       {gameState.phase === 'BIDDING' && gameState.isYourTurn && (
-        <div className="action-panel bidding-panel">
-          <h3>Place Your Bid</h3>
-          <div className="bidding-options">
-            <button
-              className="bid-button pass-bid"
-              onClick={() => handleBid('PASS')}
-              disabled={loading}
-            >
-              Pass
-            </button>
-            {(['SPADES', 'CLUBS', 'DIAMONDS', 'HEARTS'] as const).map(suit => (
-              <div key={suit} className="suit-bids">
-                <div className="suit-label">{getSuitSymbol(suit)}</div>
-                {[6, 7, 8, 9, 10].map(level => {
-                  const contract = `${['SIX', 'SEVEN', 'EIGHT', 'NINE', 'TEN'][level - 6]}_${suit}` as Contract;
-                  return (
-                    <button
-                      key={contract}
-                      className="bid-button"
-                      onClick={() => handleBid(contract)}
-                      disabled={loading}
-                    >
-                      {level}
-                    </button>
-                  );
-                })}
-              </div>
-            ))}
-            <button
-              className="bid-button miser-bid"
-              onClick={() => handleBid('MISER')}
-              disabled={loading}
-            >
-              Miser
-            </button>
-          </div>
-        </div>
+        <BiddingPanel onBid={handleBid} loading={loading} />
       )}
 
       {/* Widow Exchange UI */}
       {gameState.phase === 'WIDOW_EXCHANGE' && gameState.isYourTurn && gameState.widow.length > 0 && (
-        <div className="action-panel widow-panel">
-          <h3>Exchange Widow - Select 2 cards to discard</h3>
-          <div className="widow-cards">
-            <div className="widow-label">Widow Cards:</div>
-            <div className="widow-display">
-              {gameState.widow.map(card => renderCard(card))}
-            </div>
-          </div>
-          <div className="hand-selection">
-            <div className="hand-label">Your Hand (select 2 to discard):</div>
-            <div className="hand-cards-selection">
-              {sortCards(gameState.hand).map(card => {
-                const isSelected = selectedWidowCards.some(c => cardToString(c) === cardToString(card));
-                return (
-                  <div
-                    key={cardToString(card)}
-                    className={`card ${getSuitColor(card.suit)} ${isSelected ? 'selected' : ''} selectable`}
-                    data-suit-group={card.suit}
-                    onClick={() => handleWidowCardClick(card)}
-                  >
-                    <div className="card-rank">{getRankSymbol(card.rank)}</div>
-                    <div className="card-suit">{getSuitSymbol(card.suit)}</div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-          <button
-            className="primary-button exchange-button"
-            onClick={handleExchangeWidow}
-            disabled={selectedWidowCards.length !== 2 || loading}
-          >
-            Exchange Selected Cards ({selectedWidowCards.length}/2)
-          </button>
-        </div>
+        <WidowExchangePanel
+          widow={gameState.widow}
+          hand={gameState.hand}
+          onExchange={handleExchangeWidow}
+          loading={loading}
+        />
       )}
 
       {/* Round Complete UI */}
       {gameState.phase === 'ROUND_COMPLETE' && (
-        <div className="action-panel round-complete-panel">
-          <h3>Round Complete!</h3>
-          <div className="round-summary">
-            <h4>Tricks Won:</h4>
-            {Object.entries(gameState.tricksWon).map(([player, tricks]) => (
-              <div key={player} className="tricks-summary">
-                <span>{player}:</span>
-                <span>{tricks}</span>
-              </div>
-            ))}
-          </div>
-          {gameState.isYourTurn && (
-            <button
-              className="primary-button next-round-button"
-              onClick={handleNextRound}
-              disabled={loading}
-            >
-              Start Next Round
-            </button>
-          )}
-        </div>
+        <RoundCompletePanel
+          tricksWon={gameState.tricksWon}
+          isYourTurn={gameState.isYourTurn}
+          onNextRound={handleNextRound}
+          loading={loading}
+        />
       )}
 
       <div className="game-table">
         {/* Player positions */}
         <div className="players-area">
-          {/* West player */}
+          {/* West player (left) */}
           {gameState.otherPlayers.length > 0 && (
             <div className="player-position west">
-              <div className="player-card">
-                <div className="player-name">
-                  {gameState.otherPlayers[0]}
-                  {gameState.lastSeenSeconds[gameState.otherPlayers[0]] !== undefined && (
-                    <span className={`presence-indicator ${isPlayerOnline(gameState.lastSeenSeconds[gameState.otherPlayers[0]]) ? 'online' : 'offline'}`}>
-                      {formatPresence(gameState.lastSeenSeconds[gameState.otherPlayers[0]])}
-                    </span>
-                  )}
-                </div>
-                <div className="player-status">
-                  {gameState.currentPlayerUsername === gameState.otherPlayers[0] && (
-                    <span className="turn-indicator">⏱ Turn</span>
-                  )}
-                </div>
-                <div className="player-stats">
-                  <span>Tricks: {gameState.tricksWon[gameState.otherPlayers[0]] || 0}</span>
-                </div>
-              </div>
+              <PlayerCard
+                username={gameState.otherPlayers[0]}
+                isCurrentTurn={gameState.currentPlayerUsername === gameState.otherPlayers[0]}
+                tricksWon={gameState.tricksWon[gameState.otherPlayers[0]] || 0}
+                lastSeenSeconds={gameState.lastSeenSeconds[gameState.otherPlayers[0]]}
+              />
             </div>
           )}
 
-          {/* East player */}
+          {/* East player (right) */}
           {gameState.otherPlayers.length > 1 && (
             <div className="player-position east">
-              <div className="player-card">
-                <div className="player-name">
-                  {gameState.otherPlayers[1]}
-                  {gameState.lastSeenSeconds[gameState.otherPlayers[1]] !== undefined && (
-                    <span className={`presence-indicator ${isPlayerOnline(gameState.lastSeenSeconds[gameState.otherPlayers[1]]) ? 'online' : 'offline'}`}>
-                      {formatPresence(gameState.lastSeenSeconds[gameState.otherPlayers[1]])}
-                    </span>
-                  )}
-                </div>
-                <div className="player-status">
-                  {gameState.currentPlayerUsername === gameState.otherPlayers[1] && (
-                    <span className="turn-indicator">⏱ Turn</span>
-                  )}
-                </div>
-                <div className="player-stats">
-                  <span>Tricks: {gameState.tricksWon[gameState.otherPlayers[1]] || 0}</span>
-                </div>
-              </div>
+              <PlayerCard
+                username={gameState.otherPlayers[1]}
+                isCurrentTurn={gameState.currentPlayerUsername === gameState.otherPlayers[1]}
+                tricksWon={gameState.tricksWon[gameState.otherPlayers[1]] || 0}
+                lastSeenSeconds={gameState.lastSeenSeconds[gameState.otherPlayers[1]]}
+              />
             </div>
           )}
 
@@ -303,7 +174,7 @@ const GameTable = () => {
                 <div className="trick-cards">
                   {Object.entries(gameState.currentTrick).map(([player, card]) => (
                     <div key={player} className="trick-card-wrapper">
-                      {renderCard(card)}
+                      <PlayingCard card={card} />
                       <div className="trick-player-label">{player}</div>
                     </div>
                   ))}
@@ -316,26 +187,15 @@ const GameTable = () => {
             )}
           </div>
 
-          {/* South player (current user) */}
+          {/* South player (current user - bottom) */}
           <div className="player-position south">
-            <div className="player-card current-player">
-              <div className="player-name">
-                {username} (You)
-                {gameState.lastSeenSeconds[username || ''] !== undefined && (
-                  <span className="presence-indicator online">
-                    {formatPresence(gameState.lastSeenSeconds[username || ''])}
-                  </span>
-                )}
-              </div>
-              <div className="player-status">
-                {gameState.isYourTurn && (
-                  <span className="turn-indicator active">⏱ Your Turn</span>
-                )}
-              </div>
-              <div className="player-stats">
-                <span>Tricks: {gameState.tricksWon[username || ''] || 0}</span>
-              </div>
-            </div>
+            <PlayerCard
+              username={username || ''}
+              isCurrentUser={true}
+              isCurrentTurn={gameState.isYourTurn}
+              tricksWon={gameState.tricksWon[username || ''] || 0}
+              lastSeenSeconds={gameState.lastSeenSeconds[username || '']}
+            />
           </div>
         </div>
 
@@ -344,9 +204,15 @@ const GameTable = () => {
           <div className="hand-label">Your Hand</div>
           <div className="hand-cards">
             {gameState.hand.length > 0 ? (
-              sortCards(gameState.hand).map((card) =>
-                renderCard(card, gameState.isYourTurn && gameState.phase === 'PLAYING')
-              )
+              sortCards(gameState.hand).map((card) => (
+                <PlayingCard
+                  key={`${card.suit}-${card.rank}`}
+                  card={card}
+                  isPlayable={gameState.isYourTurn && gameState.phase === 'PLAYING'}
+                  onClick={handleCardClick}
+                  disabled={loading}
+                />
+              ))
             ) : (
               <div className="empty-hand">No cards</div>
             )}
