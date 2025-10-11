@@ -94,6 +94,13 @@
             <groupId>org.glassfish.hk2</groupId>
             <artifactId>guice-bridge</artifactId>
         </dependency>
+
+        <!-- WebSocket support -->
+        <dependency>
+            <groupId>org.java-websocket</groupId>
+            <artifactId>Java-WebSocket</artifactId>
+            <version>1.5.7</version>
+        </dependency>
     </dependencies>
 
     <build>

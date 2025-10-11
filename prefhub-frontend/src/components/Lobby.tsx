@@ -43,8 +43,22 @@ const Lobby = () => {
       // Clear sessionStorage immediately
       sessionStorage.removeItem('autoGameId');
 
-      // Fetch game state after a short delay to ensure API is ready
-      setTimeout(async () => {
+      // Fetch game state after a delay to ensure WebSocket is connected
+      const waitForWebSocketAndJoinGame = async () => {
+        // Wait for WebSocket to be connected (max 5 seconds)
+        let attempts = 0;
+        const maxAttempts = 50;
+        while (attempts < maxAttempts) {
+          const state = useGameStore.getState();
+          if (state.wsConnected) {
+            console.log('[Lobby] WebSocket connected, proceeding with auto-join');
+            break;
+          }
+          console.log('[Lobby] Waiting for WebSocket connection... attempt', attempts + 1);
+          await new Promise(resolve => setTimeout(resolve, 100));
+          attempts++;
+        }
+
         try {
           console.log('[Lobby] Fetching game state for:', autoGameId);
           // Player is already joined via backend, just fetch the state
@@ -56,10 +70,21 @@ const Lobby = () => {
             currentGameId: autoGameId,
             gameState: gameState,
           });
+
+          // Join the game via WebSocket for real-time updates
+          const state = useGameStore.getState();
+          if (state.wsConnected) {
+            console.log('[Lobby] Joining game via WebSocket:', autoGameId);
+            const { wsClient } = await import('../api/websocket');
+            wsClient.joinGame(autoGameId);
+          } else {
+            console.warn('[Lobby] WebSocket still not connected after waiting');
+          }
+
           console.log('[Lobby] Successfully loaded game');
         } catch (err) {
           console.error('[Lobby] Failed to load game:', err);
-          // If fetching fails, try joining
+          // If fetching fails, try joining normally (which handles WebSocket too)
           try {
             console.log('[Lobby] Attempting to join game as fallback');
             await joinGame(autoGameId);
@@ -67,15 +92,17 @@ const Lobby = () => {
             console.error('[Lobby] Failed to join game:', joinErr);
           }
         }
-      }, 1000);
+      };
+
+      waitForWebSocketAndJoinGame();
     } else {
       // Check if user has an active game (reconnection scenario)
       checkForActiveGame();
     }
 
-    // Refresh game list every 5 seconds
-    const interval = setInterval(loadGames, 5000);
-    return () => clearInterval(interval);
+    // Game list no longer needs polling - we can keep it static
+    // or implement a WebSocket event for lobby updates in the future
+    // For now, just load once on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

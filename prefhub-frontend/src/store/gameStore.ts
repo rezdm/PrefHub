@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { apiClient } from '../api/client';
+import { wsClient } from '../api/websocket';
 import type { PlayerView, Card, Contract } from '../types';
 
 interface GameStore {
@@ -13,6 +14,7 @@ interface GameStore {
   gameState: PlayerView | null;
   error: string | null;
   loading: boolean;
+  wsConnected: boolean;
 
   // Auth actions
   login: (username: string, password: string) => Promise<void>;
@@ -35,6 +37,19 @@ interface GameStore {
   clearError: () => void;
 }
 
+// Setup WebSocket message handlers
+const setupWebSocketHandlers = (set: any, get: any) => {
+  wsClient.on('gameState', (data: any) => {
+    console.log('[WebSocket] Game state update received');
+    set({ gameState: data.state, error: null });
+  });
+
+  wsClient.on('error', (data: any) => {
+    console.error('[WebSocket] Error:', data.message);
+    set({ error: data.message });
+  });
+};
+
 export const useGameStore = create<GameStore>((set, get) => ({
   // Initial state
   token: null,
@@ -44,6 +59,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   gameState: null,
   error: null,
   loading: false,
+  wsConnected: false,
 
   // Auth actions
   initializeAuth: () => {
@@ -53,6 +69,20 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (token && username) {
       set({ token, username, isAuthenticated: true });
       console.log('[initializeAuth] Auth restored');
+
+      // Connect WebSocket if we have a token
+      try {
+        setupWebSocketHandlers(set, get);
+        wsClient.connect(token).then(() => {
+          set({ wsConnected: true });
+          console.log('[initializeAuth] WebSocket connected');
+        }).catch((wsError) => {
+          console.error('[initializeAuth] WebSocket connection failed:', wsError);
+          // Don't fail auth restore if WebSocket fails
+        });
+      } catch (error) {
+        console.error('[initializeAuth] Error setting up WebSocket:', error);
+      }
     } else {
       console.log('[initializeAuth] No auth to restore');
     }
@@ -72,6 +102,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
         loading: false,
       });
       console.log('[login] State updated, isAuthenticated: true');
+
+      // Connect WebSocket
+      try {
+        setupWebSocketHandlers(set, get);
+        await wsClient.connect(response.token);
+        set({ wsConnected: true });
+        console.log('[login] WebSocket connected');
+      } catch (wsError) {
+        console.error('[login] WebSocket connection failed:', wsError);
+        // Don't fail login if WebSocket fails, will retry automatically
+      }
     } catch (error: any) {
       console.error('[login] Error:', error);
       const errorMessage = error.response?.data?.message || 'Login failed';
@@ -94,6 +135,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   logout: () => {
     apiClient.logout();
+    wsClient.disconnect();
     localStorage.removeItem('username');
     set({
       token: null,
@@ -102,6 +144,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       currentGameId: null,
       gameState: null,
       error: null,
+      wsConnected: false,
     });
   },
 
@@ -125,12 +168,19 @@ export const useGameStore = create<GameStore>((set, get) => ({
   joinGame: async (gameId: string) => {
     try {
       set({ loading: true, error: null });
+
+      // Use API for initial join (creates player in game)
       const gameState = await apiClient.joinGame(gameId);
       set({
         currentGameId: gameId,
         gameState,
         loading: false,
       });
+
+      // Then join via WebSocket for real-time updates
+      if (get().wsConnected) {
+        wsClient.joinGame(gameId);
+      }
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'Failed to join game';
       set({ error: errorMessage, loading: false });
@@ -160,13 +210,21 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   placeBid: async (contract: Contract) => {
-    const { currentGameId } = get();
+    const { currentGameId, wsConnected } = get();
     if (!currentGameId) return;
 
     try {
       set({ loading: true, error: null });
-      const gameState = await apiClient.placeBid(currentGameId, contract);
-      set({ gameState, loading: false });
+
+      if (wsConnected) {
+        // Use WebSocket for real-time
+        wsClient.placeBid(contract);
+        set({ loading: false });
+      } else {
+        // Fallback to API
+        const gameState = await apiClient.placeBid(currentGameId, contract);
+        set({ gameState, loading: false });
+      }
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'Failed to place bid';
       set({ error: errorMessage, loading: false });
@@ -175,13 +233,21 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   playCard: async (card: Card) => {
-    const { currentGameId } = get();
+    const { currentGameId, wsConnected } = get();
     if (!currentGameId) return;
 
     try {
       set({ loading: true, error: null });
-      const gameState = await apiClient.playCard(currentGameId, card);
-      set({ gameState, loading: false });
+
+      if (wsConnected) {
+        // Use WebSocket for real-time
+        wsClient.playCard(card);
+        set({ loading: false });
+      } else {
+        // Fallback to API
+        const gameState = await apiClient.playCard(currentGameId, card);
+        set({ gameState, loading: false });
+      }
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'Failed to play card';
       set({ error: errorMessage, loading: false });
@@ -190,13 +256,21 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   exchangeWidow: async (cards: Card[]) => {
-    const { currentGameId } = get();
+    const { currentGameId, wsConnected } = get();
     if (!currentGameId) return;
 
     try {
       set({ loading: true, error: null });
-      const gameState = await apiClient.exchangeWidow(currentGameId, cards);
-      set({ gameState, loading: false });
+
+      if (wsConnected) {
+        // Use WebSocket for real-time
+        wsClient.exchangeWidow(cards);
+        set({ loading: false });
+      } else {
+        // Fallback to API
+        const gameState = await apiClient.exchangeWidow(currentGameId, cards);
+        set({ gameState, loading: false });
+      }
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'Failed to exchange widow';
       set({ error: errorMessage, loading: false });
@@ -205,13 +279,21 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   startNextRound: async () => {
-    const { currentGameId } = get();
+    const { currentGameId, wsConnected } = get();
     if (!currentGameId) return;
 
     try {
       set({ loading: true, error: null });
-      const gameState = await apiClient.startNextRound(currentGameId);
-      set({ gameState, loading: false });
+
+      if (wsConnected) {
+        // Use WebSocket for real-time
+        wsClient.startNextRound();
+        set({ loading: false });
+      } else {
+        // Fallback to API
+        const gameState = await apiClient.startNextRound(currentGameId);
+        set({ gameState, loading: false });
+      }
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'Failed to start next round';
       set({ error: errorMessage, loading: false });

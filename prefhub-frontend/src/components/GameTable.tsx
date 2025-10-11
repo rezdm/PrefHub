@@ -23,15 +23,7 @@ const GameTable = () => {
     error
   } = useGameStore();
 
-
-  useEffect(() => {
-    // Refresh game state every 2 seconds
-    const interval = setInterval(() => {
-      refreshGameState();
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, [refreshGameState]);
+  // No more polling! WebSocket provides real-time updates
 
   if (!gameState) {
     return (

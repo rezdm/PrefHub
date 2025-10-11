@@ -6,6 +6,7 @@ import com.prefhub.server.controllers.AuthController;
 import com.prefhub.server.controllers.GameController;
 import com.prefhub.server.controllers.RulesController;
 import com.prefhub.server.di.ServerModule;
+import com.prefhub.server.websocket.GameWebSocketServer;
 import com.sun.net.httpserver.HttpServer;
 import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -20,6 +21,7 @@ public class ServerApplication {
     private static final Logger logger = LoggerFactory.getLogger(ServerApplication.class);
     private final Injector injector;
     private final HttpServer httpServer;
+    private final GameWebSocketServer webSocketServer;
 
     public ServerApplication(final int port, final String dataDirectory) throws IOException {
         // Initialize Guice injector with module
@@ -80,20 +82,36 @@ public class ServerApplication {
         // Add static file handler for root context
         httpServer.createContext("/", new StaticFileHandler());
 
-        logger.info("Server configured on port {}", port);
+        // Create WebSocket server on port + 1
+        final int wsPort = port + 1;
+        this.webSocketServer = new GameWebSocketServer(
+            wsPort,
+            injector.getInstance(com.prefhub.server.auth.AuthService.class),
+            injector.getInstance(com.prefhub.server.game.GameService.class)
+        );
+
+        logger.info("Server configured on port {} (HTTP) and {} (WebSocket)", port, wsPort);
     }
 
     public void start() {
         httpServer.start();
+        webSocketServer.start();
         logger.info("Server started");
+        logger.info("HTTP API available at http://localhost:{}/api/", httpServer.getAddress().getPort());
+        logger.info("WebSocket available at ws://localhost:{}/", webSocketServer.getPort());
         logger.info("Web interface (v0) available at http://localhost:{}/", httpServer.getAddress().getPort());
         logger.info("Web interface (v0) also available at http://localhost:{}/web-v0/", httpServer.getAddress().getPort());
     }
 
     public void stop() {
-        logger.info("Stopping HTTP server");
+        logger.info("Stopping servers");
+        try {
+            webSocketServer.stop();
+        } catch (InterruptedException e) {
+            logger.error("Error stopping WebSocket server", e);
+        }
         httpServer.stop(0);
-        logger.info("HTTP server stopped");
+        logger.info("Servers stopped");
     }
 
     // Static file handler
