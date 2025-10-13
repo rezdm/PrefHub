@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -28,7 +27,7 @@ public class GameWebSocketServer extends WebSocketServer {
     private final Map<String, String> usernameToGameId = new ConcurrentHashMap<>();
 
     public GameWebSocketServer(int port, AuthService authService, GameService gameService) {
-        super(new InetSocketAddress(port));
+        super(new InetSocketAddress("0.0.0.0", port));
         this.authService = authService;
         this.gameService = gameService;
     }
